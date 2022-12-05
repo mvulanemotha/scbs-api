@@ -1,0 +1,642 @@
+const db = require('../../db/clients')
+const db2 = require('../../db/charge')
+const dotenv = require('dotenv');
+const { default: axios } = require('axios');
+const headers = require('../modal/header');
+dotenv.config();
+
+
+//get all accounts of client using client account number
+
+let clientAccounts = async (clientNo) => {
+
+
+    return await axios({
+
+        method: "get",
+        url: process.env.url + "clients/" + clientNo + "/accounts",
+        withCredentials: true,
+        crossdomain: true,
+        headers: headers.headers()
+    })
+
+}
+
+// apply for a loan
+
+let loanApplication = async (clientNo, amount, submittedDate, repaymentDate, disbursementDate, loanId, loanDuration) => {
+
+
+
+
+    let data = {
+
+        "dateFormat": "dd MMMM yyyy",
+        "locale": "en_GB",
+        "clientId": clientNo,
+        "productId": loanId,
+        "principal": amount,
+        "loanTermFrequency": loanDuration,
+        "loanTermFrequencyType": 2,
+        "loanType": "individual",
+        "numberOfRepayments": loanDuration,
+        "repaymentEvery": 1,
+        "repaymentFrequencyType": 2,
+        "interestRatePerPeriod": 19,
+        "amortizationType": 1,
+        "interestType": 0,
+        "interestCalculationPeriodType": 1,
+        "transactionProcessingStrategyId": 1,
+        "repaymentsStartingFromDate": repaymentDate,
+        "expectedDisbursementDate": disbursementDate,
+        "submittedOnDate": submittedDate
+
+    }
+
+    return await axios({
+
+        method: "post",
+        url: process.env.url + "loans/",
+        withCredentials: true,
+        crossdomain: true,
+        data: data,
+        headers: headers.headers()
+    })
+
+
+
+}
+
+
+//save all clients to the database 
+let saveCustomers = async (customerNo, temporaryCode, contact) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into customerno(customerNo , temporaryCode , contact) select ?,?,? from dual where not exists (select customerNo from customerno where customerNo = ?)"
+
+            db.query(query, [customerNo, temporaryCode, contact, customerNo], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// get clients Numbers to be sent to customers and register with them
+// will be used to send sms to clients
+
+let getClientsCodes = async () => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from customerno limit 50"
+
+            db.query(query, [], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//get customer table
+let getCustomerNo = async (temporaryCode) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select customerNo from customerno where temporaryCode = ? limit 1"
+
+            db.query(query, [temporaryCode], (error, result) => {
+
+                if (error) {
+                    return reject(error)
+                }
+                return resolve(result)
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+
+//register a user for the app
+let registerAppUser = async (name, surname, username, password, secretAnswer, temporaryCode, customerNo) => {
+
+    try {
+
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into customers(name, surname, username , password , secretAnswer , customerNo) select ?,?,?,?,?,? "
+                + " from dual where exists ( select temporaryCode from customerno where temporaryCode = ? and status = 1) limit 1 "
+
+            db.query(query, [name, surname, username, password, secretAnswer, customerNo, temporaryCode], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+        })
+
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// update status to 0 when a customer has been registered  // for temporary code
+let updateStatus = async (tempCode) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customerno set status = 0 where temporaryCode = ? limit 1"
+
+            db.query(query, [tempCode], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//login
+
+let appUserLogin = async (username, password) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select cu.name as name , cu.surname as surname, cu.customerNo as code from customers as cu where cu.username = ? and cu.password = ? limit 1"
+
+            db.query(query, [username, password], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//change password
+let changePaasword = async (username, newpass, oldpass) => {
+
+    try {
+
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customers set password = ? where password = ? and username = ? limit 1"
+
+            db.query(query, [newpass, oldpass, username], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+//account transfers
+let transferMoney = async (fromAccount, toAccount, amount, date, clientID) => {
+
+    try {
+
+        console.log(clientID)
+
+
+        let data = {
+
+            "fromOfficeId": 2,
+            "fromClientId": 783,
+            "fromAccountType": 2,
+            "fromAccountId": 1166,//fromAccount,
+            "toOfficeId": 2,
+            "toClientId": 783,
+            "toAccountType": 2,
+            "toAccountId": 1193,//toAccount,
+            "dateFormat": "dd MMMM yyyy",
+            "locale": "en",
+            "transferDate": date,
+            "transferAmount": amount,
+            "transferDescription": "Doing savings"
+
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "accounttransfers",
+            withCredentials: true,
+            crossdomain: true,
+            data: data,
+            headers: headers.headers()
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// savings tranfers
+
+let savingsTranfers = async () => {
+
+    try {
+
+        return await axios({
+
+            method: "get",
+            url: process.env.url + "accounttransfers",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers()
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//save transactions
+
+
+let transactions = async (accountNo, chargies_applied, chargies_waived, deposit, trans_date, interest_posting, is_account_transfer, product_name,
+    reversed, tran_id, trans_type, transfer_amount, withdrawal) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into transactions (accountNo ,chargies_applied "
+                + " ,chargies_waived ,deposit ,trans_date ,interest_posting ,is_account_transfer,"
+                + " product_name ,reversed ,tran_id ,trans_type, transfer_amount ,withdrawal) "
+                + " select ?,?,?,?,?,?,?,?,?,?,?,?,? "
+                + " where not exists ( select tran_id from transactions where tran_id = ? ) limit 1 "
+
+            db.query(query, [accountNo, chargies_applied, chargies_waived, deposit, trans_date, interest_posting, is_account_transfer, product_name,
+                reversed, tran_id, trans_type, transfer_amount, withdrawal, tran_id], (err, result) => {
+
+                    if (err) {
+                        return reject(err)
+                    }
+
+                    return resolve(result)
+
+                })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// get a product transactions
+
+let getSavingsTransactions = async (accountNo) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from transactions where accountNo = ?"
+
+            db.query(query, [accountNo], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// loan details
+
+let loanDetails = async (accountNo) => {
+
+    try {
+
+        return await axios({
+
+            method: "get",
+            url: process.env.url + "loans/" + accountNo,
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers()
+        })
+
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+// save when statement has alredy been request so we cn charge future statements
+let recordAccountStatement = async (accountNo) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into loanstatementcharge (accountNo) select ? where not exists (select accountNo from loanstatementcharge where accountNo = ? ) limit 1"
+
+            db2.query(query, [accountNo, accountNo], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// get messages
+let messages = async (clientID) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            //reading new message    
+            let query = "select * from message where No not in (select message_id from readmesages where clientId = ?)"
+
+            db.query(query, [clientID], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// read old messages
+let oldMessages = async (clientID) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from message where No in (select message_id from readmesages where clientId = ?)"
+
+            db.query(query, [clientID], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+
+//save read messages
+let saveReadMessages = (message_id, clientId) => {
+
+    try {
+
+        return new Promise((resolve, reject) => {
+
+            let query = 'insert into readmesages(clientId,message_id) select ?,? where not exists (select clientId , message_id from readmesages where clientId = ? and message_id =?) limit 1'
+
+            db.query(query, [clientId, message_id, clientId, message_id], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// loan repayment
+
+let loanRepayment = async (accountNo, amount, fromAccount, transferDate) => {
+
+    try {
+
+        let data = {
+            "dateFormat": "dd MMMM yyyy",
+            "locale": "en",
+            "transactionDate": transferDate,
+            "transactionAmount": amount,
+            "paymentTypeId": 218,
+            "note": "check payment",
+            "accountNumber": accountNo,
+            "checkNumber": "che123",
+            "routingCode": "rou123",
+            "receiptNumber": "Payment from " + fromAccount,
+            "bankNumber": "ban123"
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "loans/" + accountNo + "/transactions?command=repayment",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+            data: data
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// make a deposit 
+let makeDeposit = async (depositDate, amount, accountNo, fromAccount) => {
+
+    try {
+
+        let data = {
+            "locale": "en",
+            "dateFormat": "dd MMMM yyyy",
+            "transactionDate": depositDate,
+            "transactionAmount": amount,
+            "paymentTypeId": 177,
+            "accountNumber": accountNo,
+            // "checkNumber": "che123",
+            // "routingCode": "rou123",
+            "receiptNumber": "From " + fromAccount,
+            "bankNumber": "scbs"
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=deposit",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+            data: data
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// make a deposit 
+let makeWithdrawal = async (withrawalDate, amount, accountNo, toAccount) => {
+
+    try {
+
+        let receipt
+
+        if (toAccount != "Customer payout") {
+            receipt = "Transferd to " + toAccount
+        } else {
+            receipt = "Customer payout"
+        }
+
+        let data = {
+            "locale": "en",
+            "dateFormat": "dd MMMM yyyy",
+            "transactionDate": withrawalDate,
+            "transactionAmount": amount,
+            "paymentTypeId": 218,
+            "accountNumber": accountNo,
+            // "checkNumber": "che123",
+            // "routingCode": "rou123",
+            "receiptNumber": "Transfer to" + toAccount,//receipt,
+            "bankNumber": "scbs"
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=withdrawal",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+            data: data
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+// get clients transactions for a saving account
+let savingsTrans = async (accountNo, tran_id) => {
+
+    try {
+
+        return await axios({
+
+            method: "get",
+            url: process.env.url + "savingsaccounts/" + accountNo + "/transactions/" + tran_id,
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+module.exports = { savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
+
