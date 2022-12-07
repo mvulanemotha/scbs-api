@@ -418,7 +418,7 @@ let recordAccountStatement = async (accountNo) => {
             })
 
         })
-
+    
     } catch (error) {
         console.log(error)
     }
@@ -429,11 +429,11 @@ let recordAccountStatement = async (accountNo) => {
 let messages = async (clientID) => {
 
     try {
-
+        
         return await new Promise((resolve, reject) => {
 
             //reading new message    
-            let query = "select * from message where No not in (select message_id from readmesages where clientId = ?)"
+            let query = "select * from message"//where No not in (select message_id from readmesages where clientId = ?)"
 
             db.query(query, [clientID], (err, result) => {
 
@@ -457,7 +457,7 @@ let oldMessages = async (clientID) => {
 
         return await new Promise((resolve, reject) => {
 
-            let query = "select * from message where No in (select message_id from readmesages where clientId = ?)"
+            let query = "select * from message"//where No in (select message_id from readmesages where clientId = ?)"
 
             db.query(query, [clientID], (err, result) => {
 

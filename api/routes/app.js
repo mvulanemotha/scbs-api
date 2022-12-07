@@ -279,9 +279,11 @@ router.post('/transfer', (req, res) => {
                     res.json("success")
                 }
             }).catch(err => {
-                console.log(err)
+                res.json("failed")
             })
         }
+    }).catch(err => {
+        res.json("failed")
     })
 })
 
@@ -534,8 +536,73 @@ router.get('/savingstransactions', (req, res) => {
 
     app.savingsTrans(req.query.accountNo, req.query.transId).then(dt => {
 
+        console.log(dt.data)
+
         if (dt["status"] === 200) {
-            res.json(dt.data)
+
+            let transType = "Withholding Tax"
+
+            if (dt.data["amount"] === 0.95) {
+                transType = "sms"
+            }
+
+            if (dt.data["amount"] === 18) {
+                transType = "Admin Fees"
+            }
+
+            if (dt.data["amount"] === 10) {
+                transType = "EFT"
+            }
+
+
+            let month
+            let day
+
+            if (dt.data["submittedOnDate"][1] < 10) {
+
+                month = "0" + dt.data["submittedOnDate"][1]
+
+            } else {
+                month = dt.data["submittedOnDate"][1]
+            }
+
+
+            if (dt.data["submittedOnDate"][2] < 10) {
+
+                day = "0" + dt.data["submittedOnDate"][2]
+
+            } else {
+                day = dt.data["submittedOnDate"][2]
+            }
+
+            let newData
+
+            if (transType !== "sms") {
+
+                newData = {
+
+                    "trans_type": transType,
+                    "trans_date": dt.data["submittedOnDate"][0] + "-" + month + "-" + day,
+                    "chargies_applied": dt.data["amount"]
+                }
+
+                res.json(newData)
+
+            }
+
+
+            
+
+            /*
+               tempTrans.push({
+                "trans_type": "Charge Payment",
+                "trans_date": res["submittedOnDate"][0] + "-" + month + "-" + day,
+                "chargies_applied": res["amount"]
+              })            
+            */
+
+
+
         }
 
 
