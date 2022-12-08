@@ -336,7 +336,87 @@ let updateFPtransfer = async (fromAccount) => {
                 }
 
                 return resolve(result)
-            
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// reshedule loan
+
+//save loan to be resheduled
+let saveResheduleLoan = async (accountNo, rate) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into loanreshedule (accountNo , rate) select ?,? where not exists (select accountNo from loanreshedule where accountNo = ?) limit 1"
+
+            db.query(query, [accountNo, rate], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// get loan to be resheduled
+let getResheduleLoan = async () => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from loanreshedule where status = 0 limit 1"
+
+            db.query(query, (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// update resheduled loan
+let updateresheduledLoan = async (accountNo) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update loanreshedule set status = 1 where accountNo = ?  limit 1"
+
+            db.query(query, [accountNo], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
             })
 
         })
@@ -349,4 +429,5 @@ let updateFPtransfer = async (fromAccount) => {
 
 
 
-module.exports = {updateFPtransfer , getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
+
+module.exports = { updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }

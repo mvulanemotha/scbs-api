@@ -238,9 +238,9 @@ router.post('/emptyMulaAccounts', (req, res) => {
                 dt.forEach(el => {
 
                     //make a withdrawal of some amount calculator.myDate(transDate)
-                    app.makeWithdrawal(calculator.myDate(todayDate), el["amount"], el["accountNo"], "Customer payout").then((withdraw) => {
+                    app.makeWithdrawal(calculator.myDate(todayDate), el["amount"], el["accountNo"], "Customer Payout").then((withdraw) => {
 
-                        console.log(withdraw)
+                        console.log(withdraw.data)
 
                         //update function if saved
 
@@ -255,6 +255,8 @@ router.post('/emptyMulaAccounts', (req, res) => {
 
                         }
 
+                    }).catch(err => {
+                        console.log(err)
                     })
 
                 })
@@ -367,6 +369,31 @@ router.post('/transferFPtoPeriod', () => {
 })
 
 
+// reshedule a loan
+
+//save loan interest values
+router.post('/', (req, res) => {
+
+    try {
+
+
+        let data = req.body.data
+
+        console.log(data)
+
+        /*
+        products.saveResheduleLoan(accountNo, rate).then((data) => {
+            
+            console.log(data)
+        
+        }).catch(err => {
+            console.log(err)
+        })*/
+
+    } catch (err) {
+        console.log(err)
+    }
+})
 
 
 
