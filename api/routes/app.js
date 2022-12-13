@@ -533,66 +533,66 @@ router.get('/oldmessages', (req, res) => {
 
 //get savings transactions
 router.get('/savingstransactions', (req, res) => {
-
+    
     app.savingsTrans(req.query.accountNo, req.query.transId).then(dt => {
-
+        
         console.log(dt.data)
-
+        
         if (dt["status"] === 200) {
-
+            
             let transType = "Withholding Tax"
-
+            
             if (dt.data["amount"] === 0.95) {
                 transType = "sms"
             }
-
+            
             if (dt.data["amount"] === 18) {
                 transType = "Admin Fees"
             }
-
+            
             if (dt.data["amount"] === 10) {
                 transType = "EFT"
             }
-
-
+            
+            
             let month
             let day
-
+            
             if (dt.data["submittedOnDate"][1] < 10) {
-
+                
                 month = "0" + dt.data["submittedOnDate"][1]
-
+            
             } else {
                 month = dt.data["submittedOnDate"][1]
             }
-
-
+            
+            
             if (dt.data["submittedOnDate"][2] < 10) {
-
+                
                 day = "0" + dt.data["submittedOnDate"][2]
-
+            
             } else {
                 day = dt.data["submittedOnDate"][2]
             }
-
+            
             let newData
-
+            
             if (transType !== "sms") {
-
+                
                 newData = {
-
+                    
                     "trans_type": transType,
                     "trans_date": dt.data["submittedOnDate"][0] + "-" + month + "-" + day,
                     "chargies_applied": dt.data["amount"]
                 }
-
+                
                 res.json(newData)
-
-            }
-
-
             
-
+            }
+            
+            
+            
+            
             /*
                tempTrans.push({
                 "trans_type": "Charge Payment",
@@ -600,12 +600,12 @@ router.get('/savingstransactions', (req, res) => {
                 "chargies_applied": res["amount"]
               })            
             */
-
-
-
+        
+        
+        
         }
-
-
+    
+    
     }).catch(err => {
         console.log(err)
     })
@@ -613,24 +613,24 @@ router.get('/savingstransactions', (req, res) => {
 
 // loan repayment schedule
 router.post('/loanplan', (req, res) => {
-
-
+    
+    
     let p = req.body.principal
     let n = req.body.loanterm
-
+    
     let interest = 19
     let r = (((interest / 100)) / 12)   //r interest in monthly
     //let n = parseInt(el["loanterm"])  // number of repayments
-
+    
     let repayment = (p) / ((Math.pow((1 + r), n) - (1)) / ((r * (Math.pow((1 + r), n)))))
-
+    
     let loanTotal = repayment * n
-
+    
     let data = {
         "repayment": repayment.toFixed(2),
         "loanAmount": loanTotal.toFixed(2)
     }
-
+    
     res.json(data)
 
 })

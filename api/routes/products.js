@@ -340,20 +340,20 @@ router.post('/transferFPtoPeriod', () => {
                             })
 
                             /*
-
+                            
                             app.makeDeposit(calculator.myDate(el["tranferDate"]), el["amount"], el["toAccount"], el["fromAcc"]).then(dat => {
-
+                                
                                 console.log(dat)
-
+                                
                                 if (data["status"] === 200) {
-
+                                    
                                     //update database
-
+                                
                                 }
                             }).catch(err => {
                                 console.log(err)
                             })
-
+                            
                             */
                         }
                     }).catch(err => {
@@ -362,7 +362,7 @@ router.post('/transferFPtoPeriod', () => {
                 })
             })
         }, 10000);
-
+    
     } catch (err) {
         console.log(err)
     }
@@ -372,29 +372,74 @@ router.post('/transferFPtoPeriod', () => {
 // reshedule a loan
 
 //save loan interest values
-router.post('/', (req, res) => {
-
+router.post('/loanReshedule', (req, res) => {
+    
     try {
-
-
-        let data = req.body.data
-
-        console.log(data)
-
-        /*
-        products.saveResheduleLoan(accountNo, rate).then((data) => {
-            
-            console.log(data)
         
-        }).catch(err => {
-            console.log(err)
-        })*/
-
+        
+        let data = req.body.data
+        
+        console.log(data)
+        
+        data.forEach(el => {
+            
+            products.saveResheduleLoan(el["accountNo"], el["rate"], el["Month"]).then((data) => {
+                
+                console.log(data)
+            
+            }).catch(err => {
+                console.log(err)
+            })
+        })
+        
+        /*
+       */
+    
     } catch (err) {
         console.log(err)
     }
 })
 
+
+// reshedule loan on Musoni
+router.post('/reshedule', (req, res) => {
+    
+    setInterval(() => {
+        
+        //get un resheduled loan
+        products.getResheduleLoan().then(data => {
+            
+            let dbData = data
+            
+            dbData.forEach((el) => {
+                
+                console.log(el["accountNo"])
+                
+                products.loanReshedule(el["accountNo"], el["rate"], el["month"]).then(dt => {
+                    
+                    if (dt["status"] === 200) {
+                        console.log("FINE")
+                        
+                        //update resheduled loan
+                        products.updateresheduledLoan(el["accountNo"]).then(dbRes => {
+                            
+                            if (dbRes["affectedRows"] === 1) {
+                                console.log("Resheduled Succesfully")
+                            }
+                        })
+                    
+                    } else {
+                        console.log("ERROR OCCURED")
+                    }
+                
+                }).catch(err => {
+                    console.log(err)
+                })
+            
+            })
+        })
+    }, 5000);
+})
 
 
 

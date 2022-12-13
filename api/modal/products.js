@@ -350,15 +350,15 @@ let updateFPtransfer = async (fromAccount) => {
 // reshedule loan
 
 //save loan to be resheduled
-let saveResheduleLoan = async (accountNo, rate) => {
+let saveResheduleLoan = async (accountNo, rate, month) => {
 
     try {
 
         return await new Promise((resolve, reject) => {
 
-            let query = "insert into loanreshedule (accountNo , rate) select ?,? where not exists (select accountNo from loanreshedule where accountNo = ?) limit 1"
+            let query = "insert into loanreshedule (accountNo , rate, month) select ?,?,? where not exists (select accountNo from loanreshedule where accountNo = ?) limit 1"
 
-            db.query(query, [accountNo, rate], (err, result) => {
+            db.query(query, [accountNo, rate, month, accountNo], (err, result) => {
 
                 if (err) {
                     return reject(err)
@@ -428,6 +428,43 @@ let updateresheduledLoan = async (accountNo) => {
 }
 
 
+// change rate for laons
+
+let loanReshedule = async (accountNo, rate, month) => {
+
+    try {
 
 
-module.exports = { updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
+        let data = {
+            "loanId": accountNo,
+            "graceOnPrincipal": 1,
+            "rescheduleFromDate": month,
+            "dateFormat": "dd MMMM yyyy",
+            "locale": "en",
+            "recalculateInterest": true,
+            "submittedOnDate": "01 December 2022",
+            "rescheduleReasonComment": "Interest Rate has changed",
+            "newInterestRate": rate,
+            "rescheduleReasonId": 454,
+            "graceOnInterest": 1,
+            "extraTerms": 1
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "rescheduleloans",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+            data: data
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+
+module.exports = { loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
