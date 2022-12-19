@@ -3,6 +3,8 @@ const db2 = require('../../db/charge')
 const dotenv = require('dotenv');
 const { default: axios } = require('axios');
 const headers = require('../modal/header');
+const nodemailer = require('nodemailer')
+
 dotenv.config();
 
 
@@ -418,7 +420,7 @@ let recordAccountStatement = async (accountNo) => {
             })
 
         })
-    
+
     } catch (error) {
         console.log(error)
     }
@@ -429,7 +431,7 @@ let recordAccountStatement = async (accountNo) => {
 let messages = async (clientID) => {
 
     try {
-        
+
         return await new Promise((resolve, reject) => {
 
             //reading new message    
@@ -634,9 +636,234 @@ let savingsTrans = async (accountNo, tran_id) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+// update attempts in database
+let loginAttempts = async (username) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customers set attempts = attempts + 1 where username = ? limit 1"
+
+            db.query(query, [username], (err, result) => {
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// get login attempts
+let getLoginAttempts = async (username) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from customers where username = ? limit 1"
+
+            db.query(query, [username], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//reset attemps on login
+let resetAttempts = async (username) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customers set attempts = 0 where username = ? limit 1"
+
+            db.query(query, [username], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
 
 }
 
+// send email to make a reset
+// NOT USED CURRENTLY
+let resetPassEmail = async (username) => {
 
-module.exports = { savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
+    try {
+
+        //use get login attempts to get customer number so that we cn then get an email from core banking
+        getLoginAttempts(username).then(email => {
+
+            if (email.length !== 0) {
+
+                email.forEach(el => {
+
+                    //console.log(el["customerNo"])
+                    return el["customerNo"]
+
+                })
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+let alertIT = (contact, email) => {
+
+    var transporter = nodemailer.createTransport({
+
+        service: "Outlook365",
+        host: 'smtp-mail.outlook.com',                  // hostname
+        //service: 'outlook', 
+        port: 587,
+        secure: true,
+        requireTLS: true,
+        auth: {
+            user: process.env.usermail,
+            pass: process.env.passmail
+        },
+        tls:
+        {
+            "ciphers": 'SSLv3',
+            rejectUnauthorized: false
+        }
+    })
+
+    transporter.sendMail({
+
+        from: {
+            name: 'Customer App',
+            address: 'it@scbs.co.sz' //process.env.frommail
+        },
+        to: ['mkhululi.motha@scbs.co.sz'],
+        subject: 'Password Reset',
+        text: 'Password Reset',
+
+        html: "Customer details without an email: <br><br>"
+            + "Contact Number :" + contact
+            + "<br>Used Email Address :" + email
+            + "<br><br>Regards"
+        ,
+        replyTo: ""
+    }, (error) => {
+        if (error) {
+            res.json("failed");
+        } else {
+            //res.json(result)
+            res.json("sent")
+        }
+    })
+}
+
+// send email to clients to reset password
+let sendResetEmail = (email, newPassword) => {
+
+
+    try {
+
+        var transporter = nodemailer.createTransport({
+
+            service: "Outlook365",
+            host: 'smtp-mail.outlook.com',                  // hostname
+            //service: 'outlook', 
+            port: 587,
+            secure: true,
+            requireTLS: true,
+            auth: {
+                user: process.env.usermail,
+                pass: process.env.passmail
+            },
+            tls:
+            {
+                "ciphers": 'SSLv3',
+                rejectUnauthorized: false
+            }
+        })
+
+        transporter.sendMail({
+
+            from: {
+                name: 'STATUS CAPITAL',
+                address: 'it@scbs.co.sz' //process.env.frommail
+            },
+            to: email,
+            subject: 'Password Reset',
+            text: 'Password Reset',
+
+            html: "Dear Valued customer: <br><br>"
+                + "Your new password is:" + newPassword
+                + "<br>We recommand that you change it upone login"
+                + "<br><br>Regards"
+            ,
+            replyTo: ""
+        }, (error) => {
+            if (error) {
+                res.json("failed");
+            } else {
+                //update database for new password
+
+
+                res.json("sent")
+            }
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// pasword generator
+let assingNewPassword = async (username, password) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customers set password = ? where username = ? limit 1"
+
+            db.query(query, [password, username], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+module.exports = { assingNewPassword, sendResetEmail, alertIT, resetPassEmail, resetAttempts, loginAttempts, getLoginAttempts, savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
 

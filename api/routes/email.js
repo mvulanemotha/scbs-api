@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv');
+const app = require("../modal/app")
+const client = require("../modal/clients")
+const generator = require('generate-password');
 dotenv.config();
 
 
@@ -78,60 +81,56 @@ router.post('/forgotpass', (req, res) => {
 
     try {
 
-        let contact = req.body.contact;
-        let nationalID = req.body.nationalID
+        var password = generator.generate({
+            length: 10,
+            numbers: true
+        });
 
-        var transporter = nodemailer.createTransport({
+        let username = req.body.contact
+        let emailM = req.body.email
 
-            service: "Outlook365",
-            host: 'smtp-mail.outlook.com',                  // hostname
-            //service: 'outlook', 
-            port: 587,
-            secure: true,
-            requireTLS: true,
-            auth: {
-                user: process.env.usermail,
-                pass: process.env.passmail
-            },
-            tls:
-            {
-                "ciphers": 'SSLv3',
-                rejectUnauthorized: false
+        app.getLoginAttempts(username).then(email => {
+
+            let user = null
+
+            if (email.length !== 0) {
+
+                email.forEach(el => {
+                    user = el["customerNo"]
+                })
+
+                // get email of user from core banking
+                client.getClient(user).then(dt => {
+
+                    console.log(dt.data["emailAddress"])
+
+                    if (dt.data["emailAddress"] !== undefined) {
+                        
+                        // send email to clients with new password
+                        app.sendResetEmail(dt.data["emailAddress"], password)
+
+
+                        // update database on changed password
+                        app.assingNewPassword(username, password)
+
+                        res.json({ "message": "success" })
+
+
+                    } else {
+                        //alert IT if the user has no email
+                        app.alertIT(username, emailM)
+
+                        res.json({ "message": "Will be contacted by SCBS" })
+                    }
+                })
+
+
             }
         })
 
-
-        transporter.sendMail({
-
-            from: {
-                name: 'Customer App',
-                address: 'it@scbs.co.sz' //process.env.frommail
-            },
-            to: ['mkhululi.motha@scbs.co.sz'],
-            subject: 'Password Reset',
-            text: 'Password Reset',
-
-            html: "Customer information: <br><br>"
-                + "Contact Number :" + contact
-                + "<br>National ID :" + nationalID
-                + "<br><br>Regards"
-
-            ,
-            replyTo: ""
-        }, (error, result) => {
-            if (error) {
-                res.json("failed");
-            } else {
-                //res.json(result)
-                res.json("sent")
-            }
-        })
     } catch (err) {
         console.log(err);
     }
-
-
-
 })
 
 
