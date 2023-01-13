@@ -127,16 +127,12 @@ router.post('/runloanArears', (req, res) => {
 
                 dt.forEach(el => {
 
-
-                    // mathematically loan predictor
-
-                    let p = parseFloat(el["principal"])
-
+                    /*
                     let r = (((parseInt(el["interest"]) / 100)) / 12)   //r interest in monthly
                     let n = parseInt(el["loanterm"])  // number of repayments
 
                     let repayment = (p) / ((Math.pow((1 + r), n) - (1)) / ((r * (Math.pow((1 + r), n)))))
-
+                    */
                     //have a variable which will multiply by 3 because 90 days leads to 3 repayments
 
                     let transDate
@@ -147,60 +143,24 @@ router.post('/runloanArears', (req, res) => {
                         transDate = todayDate
                     }
 
+                    let arrears = parseFloat(el["totalOverDue"])
 
-                    //let numberOfMonths = 0  // its initial one because the file will run all the loans 
+                    let amount = (1 / 12) * (13 / 100) * (arrears)
 
-                    let daysRemaining = ((parseInt(el["daysInArrears"])) - 90)  // number of days left
-
-                    if (Math.trunc(daysRemaining) >= 30) {
-
-                        numberOfMonths += Math.trunc((daysRemaining / 30))
-                    }
-
-                    //arears after 90 days
-
-                    let arrears = repayment * 3
-
-                    //check how many months are in arears
-
-                    let amount = (1 / 12) * (13 / 100) * (parseFloat(arrears))
-
-                    /*
-                    let newArear = arrears
-
-                    if (numberOfMonths >= 1) {
-
-                        for (let i = 1; i <= numberOfMonths; i++) {
-
-                            newArear += repayment
-                            amount += (1 / 12) * (13 / 100) * (parseFloat(newArear))
-
-                        }
-
-                    }
-
-                    total += amount
-                    */
-
-                    // console.log(repayment)
-
-
-                    // multiply by the number of runs
-
-
-                    //let amount2 = amount * numberOfRuns // * numberOfRuns will be romoved
+                    console.log(el["accountNo"])
+                    console.log(amount)
 
                     //run loan penalty
+
                     products.runloanPenalty(el["accountNo"], amount.toFixed(2), calculator.myDate(transDate)).then(dt => {
 
-                        console.log(dt)
+                        console.log(dt["data"])
 
                         if (dt["status"] === 200) {
 
                             //call another function to update database
-                            console.log("check")
                             products.updateLoanArrears(el["accountNo"]).then(results => {
-                                console.log(results)
+                                //console.log(results)
                             })
                         }
 
@@ -210,7 +170,7 @@ router.post('/runloanArears', (req, res) => {
 
                 })
             })
-        }, 3000);
+        }, 5000);
 
 
     } catch (err) {
@@ -362,7 +322,7 @@ router.post('/transferFPtoPeriod', () => {
                 })
             })
         }, 10000);
-    
+
     } catch (err) {
         console.log(err)
     }
@@ -373,28 +333,28 @@ router.post('/transferFPtoPeriod', () => {
 
 //save loan interest values
 router.post('/loanReshedule', (req, res) => {
-    
+
     try {
-        
-        
+
+
         let data = req.body.data
-        
+
         console.log(data)
-        
+
         data.forEach(el => {
-            
+
             products.saveResheduleLoan(el["accountNo"], el["rate"], el["Month"]).then((data) => {
-                
+
                 console.log(data)
-            
+
             }).catch(err => {
                 console.log(err)
             })
         })
-        
+
         /*
        */
-    
+
     } catch (err) {
         console.log(err)
     }
@@ -403,39 +363,39 @@ router.post('/loanReshedule', (req, res) => {
 
 // reshedule loan on Musoni
 router.post('/reshedule', (req, res) => {
-    
+
     setInterval(() => {
-        
+
         //get un resheduled loan
         products.getResheduleLoan().then(data => {
-            
+
             let dbData = data
-            
+
             dbData.forEach((el) => {
-                
+
                 console.log(el["accountNo"])
-                
+
                 products.loanReshedule(el["accountNo"], el["rate"], el["month"]).then(dt => {
-                    
+
                     if (dt["status"] === 200) {
                         console.log("FINE")
-                        
+
                         //update resheduled loan
                         products.updateresheduledLoan(el["accountNo"]).then(dbRes => {
-                            
+
                             if (dbRes["affectedRows"] === 1) {
                                 console.log("Resheduled Succesfully")
                             }
                         })
-                    
+
                     } else {
                         console.log("ERROR OCCURED")
                     }
-                
+
                 }).catch(err => {
                     console.log(err)
                 })
-            
+
             })
         })
     }, 5000);

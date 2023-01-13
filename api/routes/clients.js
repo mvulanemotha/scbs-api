@@ -14,11 +14,10 @@ router.get("/", async (req, res) => {
 // get a specific client
 router.get("/client", async (req, res) => {
     
-    
     clients.getClient(req.query.id).then((data) => {
     
     res.json(data.data)
-
+    
     }).catch(err => {
         console.log(err)
     })

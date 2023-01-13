@@ -17,7 +17,6 @@ const fixedproducts = require('./api/routes/fixedproducts')
 const clientapp = require('./api/routes/app')
 const email = require('./api/routes/email')
 
-
 var bodyParser = require('body-parser')
 
 app.use(bodyParser.json({ limit: '70mb' }))
@@ -57,7 +56,7 @@ app.use('/auth', auth)
 app.use('/sms', sms)
 app.use('/denoms', denomns)
 app.use('/fixedproducts', fixedproducts)
-app.use('/clientapp', clientapp)
+app.use('/clientapp' , clientapp)
 app.use('/email', email)
 app.use('/charge', chargies)
 

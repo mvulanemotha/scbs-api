@@ -102,7 +102,7 @@ let getClientsCodes = async () => {
 
         return await new Promise((resolve, reject) => {
 
-            let query = "select * from customerno limit 50"
+            let query = "select * from customerno where sent = 0 limit 1"
 
             db.query(query, [], (err, result) => {
 
@@ -121,6 +121,34 @@ let getClientsCodes = async () => {
     }
 
 }
+
+//update when email has been sent
+let updateEmailsent = async (tempcode) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customerno set sent = 1 where temporaryCode = ? limit 1"
+
+            db.query(query, [tempcode], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
 
 //get customer table
 let getCustomerNo = async (temporaryCode) => {
@@ -152,29 +180,25 @@ let getCustomerNo = async (temporaryCode) => {
 //register a user for the app
 let registerAppUser = async (name, surname, username, password, secretAnswer, temporaryCode, customerNo) => {
 
-    try {
 
 
-        return await new Promise((resolve, reject) => {
+    return await new Promise((resolve, reject) => {
 
-            let query = "insert into customers(name, surname, username , password , secretAnswer , customerNo) select ?,?,?,?,?,? "
-                + " from dual where exists ( select temporaryCode from customerno where temporaryCode = ? and status = 1) limit 1 "
+        let query = "insert into customers(name, surname, username , password , secretAnswer , customerNo) select ?,?,?,?,?,? "
+            + " from dual where exists ( select temporaryCode from customerno where temporaryCode = ? and status = 1) limit 1 "
 
-            db.query(query, [name, surname, username, password, secretAnswer, customerNo, temporaryCode], (err, result) => {
+        db.query(query, [name, surname, username, password, secretAnswer, customerNo, temporaryCode], (err, result) => {
 
-                if (err) {
-                    return reject(err)
-                }
+            if (err) {
+                return reject(err)
+            }
 
-                return resolve(result)
+            return resolve(result)
 
-            })
         })
+    })
 
 
-    } catch (error) {
-        console.log(error)
-    }
 
 }
 
@@ -769,8 +793,8 @@ let alertIT = (contact, email) => {
         text: 'Password Reset',
 
         html: "Customer details without an email: <br><br>"
-            + "Contact Number :" + contact
-            + "<br>Used Email Address :" + email
+            + "Customer Username :" + contact
+            + "<br>Clients Email :" + email
             + "<br><br>Regards"
         ,
         replyTo: ""
@@ -864,6 +888,63 @@ let assingNewPassword = async (username, password) => {
     }
 }
 
+// get charge from database that has zero charge
+let zeroCharge = async () => {
 
-module.exports = { assingNewPassword, sendResetEmail, alertIT, resetPassEmail, resetAttempts, loginAttempts, getLoginAttempts, savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let charge = 'Pay Charge'
+
+            let query = "select * from transactions where trans_type = ? and chargies_applied = 0 limit 1"
+
+            db.query(query, [charge], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// update zero charge
+
+let updateZeroCharge = async (tran_id, chargeName, amount) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update transactions set trans_type = ? , chargies_applied = ? where tran_id = ? limit 1"
+
+            db.query(query, [chargeName, amount, tran_id], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+module.exports = { zeroCharge, updateZeroCharge, updateEmailsent, assingNewPassword, sendResetEmail, alertIT, resetPassEmail, resetAttempts, loginAttempts, getLoginAttempts, savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
 

@@ -1024,12 +1024,12 @@ let getUnRunMonthlyAdmin = async (date) => {
 let storeMulaAccounts = async (accountNo, interest, date) => {
 
     try {
-
+        
         return await new Promise((resolve, reject) => {
 
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
-
-            db2.query(query, [accountNo, interest, date, accountNo], (err, result) => {
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,?"//where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+            
+            db2.query(query, [accountNo, interest, date], (err, result) => {
 
                 if (err) {
                     return reject(err)
@@ -1060,7 +1060,7 @@ let getWithholdingTax = async () => {
             }
 
             return resolve(result)
-        
+
         })
 
     })
@@ -1285,13 +1285,13 @@ let updateSent = async (accountNo) => {
 let checkStatement = async (accountNo) => {
 
     try {
-        
+
         return await new Promise((resolve, reject) => {
-            
+
             let query = 'select accountNo from loanstatementcharge where accountNo = ?'
 
             db2.query(query, [accountNo], (err, result) => {
-                
+
                 if (err) {
                     return reject(err)
                 }

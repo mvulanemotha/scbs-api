@@ -202,8 +202,8 @@ router.post('/eft', (req, res) => {
     } catch (error) {
       console.log(error)
     }
-
-  }, 4000);
+  
+  }, 10000);
 
 })
 
@@ -231,7 +231,7 @@ router.post("/mulaadminfees", (req, res) => {
           console.log(el["accountNo"])
 
           chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 12, calculator.myDate(el["date"])).then(dt => {
-
+            
             let data = dt.data
 
             var resourceID = data["resourceId"]
@@ -268,7 +268,7 @@ router.post("/mulaadminfees", (req, res) => {
       console.log(error)
     }
 
-  }, 4000);
+  }, 6000);
 
 })
 
@@ -278,7 +278,7 @@ router.post("/mulaadminfees", (req, res) => {
 router.post("/mulawithholdingtax", (req, res) => {
 
   setInterval(() => {
-
+    
     //checking if the are records in the database
     try {
 
@@ -292,8 +292,8 @@ router.post("/mulawithholdingtax", (req, res) => {
 
         data.forEach(el => {
 
-          var amount = ((el["interest"]) * (0.1))
-
+          var amount = ((parseFloat(el["interest"])) * (0.1))
+          
           console.log(amount)
           console.log(el["accountNo"])
 
@@ -330,12 +330,12 @@ router.post("/mulawithholdingtax", (req, res) => {
       }).catch(err => {
         console.log(err)
       })
-
+    
     } catch (error) {
       console.log(error)
     }
 
-  }, 4000);
+  }, 10000);
 
 })
 
@@ -787,15 +787,14 @@ router.post('/savepayloancharge', (req, res) => {
   }
 
   //console.log(data.length)
-
+  
   try {
-
-
-
+    
+    
     data.forEach(el => {
-
+      
       //console.log(data)
-
+      
       //console.log(el["date"])
       // number used matches the charge code
       chargies.saveLoanClientCharge(el["accountNo"], 6, el["Amount"], calculator.myDate(el["date"])).then(data1 => {
@@ -807,7 +806,7 @@ router.post('/savepayloancharge', (req, res) => {
           } else {
             countSaved++
           }
-
+          
           if (countSaved === data.length) {
             savedLoansPenalties(res, all = "all")
           }

@@ -68,7 +68,7 @@ let saveClient = async (contact) => {
                 return resolve(result)
 
             })
-        
+
         })
 
 
@@ -87,7 +87,7 @@ let getClientLocal = async () => {
 
         return await new Promise((resolve, reject) => {
 
-            
+
             let query = "select * from clientsnumbers where status = 0 limit 10"
 
             db.query(query, [], (err, result) => {
@@ -122,7 +122,7 @@ let updateSentsms = async (contact) => {
             let query = "update clientsnumbers set status = 1 where contact = ? limit 1"
 
             db.query(query, [contact], (err, result) => {
-                
+
                 if (err) {
                     return reject(err)
                 }
@@ -140,5 +140,80 @@ let updateSentsms = async (contact) => {
 
 }
 
+//save clients emails
+let saveClientEmails = async (email, name) => {
 
-module.exports = { getClient , saveClient, getClientLocal, updateSentsms }
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into customeremails (email, name) select ?,?"
+
+            db.query(query, [email, name], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+// update sent email to clients
+let updateSentEmail = async (email) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update customeremails set status = 1 where email = ? limit 1"
+
+            db.query(query, [email], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+// get client email 
+let getClientEmail = async () => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from customeremails where status = 0 limit 1"
+
+            db.query(query, [], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
+
+
+module.exports = {getClientEmail, updateSentEmail, saveClientEmails, getClient, saveClient, getClientLocal, updateSentsms }

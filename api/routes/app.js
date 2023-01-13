@@ -6,14 +6,14 @@ const sms = require('../modal/sms')
 const client = require('../modal/clients')
 const products = require('../modal/products')
 const loanpreditor = require('../modal/loanpredictor')
-
+const authModal = require('../modal/auth')
 const chargies = require('../modal/charge')
-
+const jwt = require('jsonwebtoken')
+var CryptoJS = require("crypto-js");
 //router to get all clients accounts
 
-router.get('/clients_accounts', (req, res) => {
+router.get('/clients_accounts', authModal.ensureToken, (req, res) => {
 
-    //client No
     let clientNo = req.query.clientNo
 
     app.clientAccounts(clientNo).then(data => {
@@ -28,7 +28,7 @@ router.get('/clients_accounts', (req, res) => {
 
 
 // apply for a loan
-router.post('/apply_for_loan', (req, res) => {
+router.post('/apply_for_loan', authModal.ensureToken, (req, res) => {
 
     try {
 
@@ -130,30 +130,34 @@ router.get('/clientsCodes', (req, res) => {
 router.post('/register', (req, res) => {
 
     let dataM = req.body
-    let tempCode = dataM.temporaryCode
+
+    let password = CryptoJS.AES.decrypt(dataM["password"], process.env.encycriptionKey)
+    let username = CryptoJS.AES.decrypt(dataM["username"], process.env.encycriptionKey)
+    let temporaryCode = CryptoJS.AES.decrypt(dataM["temporaryCode"], process.env.encycriptionKey)
+
+    password = password.toString(CryptoJS.enc.Utf8)
+    username = username.toString(CryptoJS.enc.Utf8)
+    temporaryCode = temporaryCode.toString(CryptoJS.enc.Utf8)
+
 
     try {
         //get client number from a customerNo table then include it in customer table
 
-        app.getCustomerNo(tempCode).then(data => {
+        app.getCustomerNo(temporaryCode).then(data => {
 
-            console.log(tempCode)
             var customerNo = ""
 
             data.forEach(el => {
                 customerNo = el["customerNo"]
             })
 
-            console.log(customerNo)
-
             //call function to save new client
-            app.registerAppUser(dataM.customerName, dataM.customerSurname, dataM.username, dataM.password, dataM.secretQuestion, dataM.temporaryCode, customerNo).then(data => {
-                console.log(data)
+            app.registerAppUser("SCBS", "SCBS", username, password, "BLUE", temporaryCode, customerNo).then(data => {
+
                 if (data["affectedRows"] === 1) {
 
                     //call function to update database
-
-                    app.updateStatus(tempCode).then(data => {
+                    app.updateStatus(temporaryCode).then(data => {
                         // res.sendStatus(200)
                         res.json({ message: "saved" })
                     })
@@ -165,7 +169,7 @@ router.post('/register', (req, res) => {
                 }
             }).catch((err) => {
 
-                console.log(err)
+                res.json({ message: "failed" })
             })
         }).catch((err) => {
             console.log(err)
@@ -180,54 +184,84 @@ router.post('/register', (req, res) => {
 //user login
 router.post('/appauth', (req, res) => {
 
-    // get login attempts for a login
-    app.getLoginAttempts(req.body.username).then((attempts) => {
 
-        // if the lenght is zero means no username was found
-        if (attempts.length === 0) {
-            res.json({ message: "Login Failed" })
-            return
-        }
+    try {
 
-        attempts.forEach((el) => {
-            let attempts = el["attempts"]
+        let username = req.body.username
+        let password = req.body.password
+        //encycriptionKey
+        let cusername = CryptoJS.AES.decrypt(username, process.env.encycriptionKey)
+        let cpassword = CryptoJS.AES.decrypt(password, process.env.encycriptionKey)
 
-            if (parseInt(attempts) === 3) {
-                res.json({ message: "locked" })
+        username = cusername.toString(CryptoJS.enc.Utf8)
+        password = cpassword.toString(CryptoJS.enc.Utf8)
+
+
+        // get login attempts for a login
+        app.getLoginAttempts(username).then((attempts) => {
+
+            //var loginAttempts = 0
+
+            attempts.forEach(at => {
+                loginAttempts = parseInt(at["attempts"])
+            })
+
+            // if the lenght is zero means no username was found
+            if (attempts.length === 0) {
+                res.json({ message: "Login Failed" })
                 return
             }
 
-            if (parseInt(attempts) !== 3) {
+            attempts.forEach((el) => {
+                let attempts = el["attempts"]
 
-                //call function to login user
-                app.appUserLogin(req.body.username, req.body.password).then((response) => {
+                if (parseInt(attempts) === 3) {
+                    res.json({ message: "locked" })
+                    return
+                }
 
-                    //lets check if login failed to update login attempts
-                    if (response.length === 0) {
+                if (parseInt(attempts) !== 3) {
 
-                        // call update function to update attempts
-                        app.loginAttempts(req.body.username)
+                    //call function to login user
+                    app.appUserLogin(username, password).then((response) => {
 
-                    } else {
-                        app.resetAttempts(req.body.username)
-                    }
+                        console.log("Im in")
+                        //lets check if login failed to update login attempts
+                        if (response.length === 0) {
 
-                    res.json(response)
+                            // call update function to update attempts
+                            app.loginAttempts(username)
 
-                }).catch(() => {
+                            res.json({ message: "Login Failed" })
 
-                    res.sendStatus(503)
-                
-                })
+                        } else {
 
-            } else {
+                            app.resetAttempts(username)
 
-            }
+                            let newResponse = response
 
+                            newResponse.push({ token: jwt.sign({ username }, process.env.jwt_token_key) })
+
+                            res.json(newResponse)
+                        }
+
+                    }).catch((errr) => {
+                        console.log(errr)
+                        //res.sendStatus(503)
+                    })
+
+                } else {
+                }
+            })
+        }).catch(errrr => {
+            console.log(errrr)
         })
-    }).catch(errrr => {
-        console.log(errrr)
-    })
+
+
+
+    } catch (error) {
+        console.log(error)
+    }
 
 
 
@@ -235,11 +269,15 @@ router.post('/appauth', (req, res) => {
 
 
 //change password
-router.post('/changepassword', (req, res) => {
+router.post('/changepassword', authModal.ensureToken, (req, res) => {
 
-    //call funtion to change password
+    //call funtion to change passwor
 
-    app.changePaasword(req.body.username, req.body.newpass, req.body.oldpass).then(data => {
+    let username = CryptoJS.AES.decrypt(req.body.username, process.env.encycriptionKey)
+    let newpass = CryptoJS.AES.decrypt(req.body.newpass, process.env.encycriptionKey)
+    let oldpass = CryptoJS.AES.decrypt(req.body.oldpass, process.env.encycriptionKey)
+
+    app.changePaasword(username, newpass, oldpass).then(data => {
 
         if (data["affectedRows"] === 1) {
 
@@ -254,7 +292,7 @@ router.post('/changepassword', (req, res) => {
 })
 
 //get client details
-router.get('/client', (req, res) => {
+router.get('/client', authModal.ensureToken, (req, res) => {
 
     //function to geclient details
 
@@ -265,9 +303,8 @@ router.get('/client', (req, res) => {
             res.json(data.data)
 
         }).catch((err) => {
-            res.sendStatus(503)
-            //console.log(err)
 
+            res.sendStatus(503)
         })
 
     } catch (err) {
@@ -276,7 +313,7 @@ router.get('/client', (req, res) => {
 
 })
 
-router.post('/loantransfer', (req, res) => {
+router.post('/loantransfer', authModal.ensureToken, (req, res) => {
 
 
     try {
@@ -286,7 +323,16 @@ router.post('/loantransfer', (req, res) => {
 
         app.loanRepayment(data.toAccount, data.amount, data.fromAccount, calculator.myDate(data.date)).then(dt => {
             if (dt["status"] === 200) {
-                res.json("success")
+
+                // call function to do a withdrawal from the savings account
+                
+                //start by making a withdrawal from one account to deposit on another
+                app.makeWithdrawal(calculator.myDate(data.date), data.amount, data.fromAccount, data.toAccount).then(withdrwalRes => {
+                    
+                    if (dt["status"] === 200) {
+                        res.json("success")
+                    }
+                })
             } else {
                 res.json("failed")
             }
@@ -303,7 +349,7 @@ router.post('/loantransfer', (req, res) => {
 })
 
 // make transfer
-router.post('/transfer', (req, res) => {
+router.post('/transfer', authModal.ensureToken, (req, res) => {
 
     let data = req.body
 
@@ -329,7 +375,7 @@ router.post('/transfer', (req, res) => {
 })
 
 // get a savings account details
-router.get('/savingaccountdetails', (req, res) => {
+router.get('/savingaccountdetails', authModal.ensureToken, (req, res) => {
 
     // get products detail()s
     products.savingsAccount(req.query.accountNo).then(data => {
@@ -346,7 +392,7 @@ router.get('/savingaccountdetails', (req, res) => {
 })
 
 // account transfers for a saving account
-router.get('/transfers', (req, res) => {
+router.get('/transfers', authModal.ensureToken, (req, res) => {
 
     //get savings tranfers
     app.savingsTranfers().then(data => {
@@ -360,7 +406,7 @@ router.get('/transfers', (req, res) => {
 })
 
 //get savings transactions  savings
-router.get('/transactions', (req, res) => {
+router.get('/transactions', authModal.ensureToken, (req, res) => {
 
     console.log(req.query.accountNo)
 
@@ -377,7 +423,7 @@ router.get('/transactions', (req, res) => {
 })
 
 // all loan details
-router.get('/loandetails', (req, res) => {
+router.get('/loandetails', authModal.ensureToken, (req, res) => {
 
 
     try {
@@ -385,8 +431,6 @@ router.get('/loandetails', (req, res) => {
         var account = req.query.accountNo
         var accontsCount = 0
         var response = []
-
-        console.log(req.query.loanCount)
 
         if (req.query.loanCount == 1) {
 
@@ -428,7 +472,7 @@ router.get('/loandetails', (req, res) => {
 
 
 // loan predictor 
-router.post('/loanpredictor', (req, res) => {
+router.post('/loanpredictor', authModal.ensureToken, (req, res) => {
 
     // check flag if its growth or investment
     //investment, periodMonths, rate
@@ -455,7 +499,7 @@ router.post('/loanpredictor', (req, res) => {
 
 
 // statement charge
-router.get('/ifhasbeencharged', (req, res) => {
+router.get('/ifhasbeencharged', authModal.ensureToken, (req, res) => {
 
     try {
 
@@ -512,15 +556,20 @@ router.get('/ifhasbeencharged', (req, res) => {
 
 
 // apply charge
-router.post('/loanstatementcharge', (req, res) => {
+router.post('/loanstatementcharge', authModal.ensureToken, (req, res) => {
 
     //statement
-    chargies.saveLoanClientCharge(req.body.accountNo, 14, 25.00, calculator.myDate(req.body.date)).then(dt => {
+    chargies.saveLoanClientCharge(req.body.accountNo, 18, 5.00, calculator.myDate(req.body.date)).then(dt => {
 
-        console.log(dt)
+        console.log()
+
         if (dt["status"] === 200) {
             res.json("success")
         }
+
+    }).then(err => {
+
+        console.log(err)
 
     })
 
@@ -529,7 +578,7 @@ router.post('/loanstatementcharge', (req, res) => {
 
 
 //add account to database when a request has been made for a statement
-router.post('/statementrequestmade', (req, res) => {
+router.post('/statementrequestmade', authModal.ensureToken, (req, res) => {
 
     app.recordAccountStatement(req.body.accountNo).then(dt => {
 
@@ -541,7 +590,7 @@ router.post('/statementrequestmade', (req, res) => {
 })
 
 // messages
-router.get('/messages', (req, res) => {
+router.get('/messages', authModal.ensureToken, (req, res) => {
 
     console.log(req.query.clientID)
 
@@ -553,7 +602,7 @@ router.get('/messages', (req, res) => {
 })
 
 // save read messages 
-router.post('/savemessage', (req, res) => {
+router.post('/savemessage', authModal.ensureToken, (req, res) => {
 
     app.saveReadMessages(req.body.messageID, req.body.clientID).then(dt => {
 
@@ -564,7 +613,7 @@ router.post('/savemessage', (req, res) => {
 })
 
 // read old messages
-router.get('/oldmessages', (req, res) => {
+router.get('/oldmessages', authModal.ensureToken, (req, res) => {
 
     app.oldMessages(req.query.clientID).then(dt => {
         res.json(dt)
@@ -572,12 +621,71 @@ router.get('/oldmessages', (req, res) => {
 
 })
 
+
+//create a small service that will  update 0 chargies from the database
+/*
+setInterval(() => {
+    
+    //get data from database that has zero charge
+    
+    app.zeroCharge().then(data => {
+        
+        //console.log(data)
+        
+        data.forEach((dt) => {
+            
+            app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
+                
+              
+                
+                if (res["status"] === 200) {
+                    
+                    let transType = "Withholding Tax"
+                    
+                    let amountGot = res.data["amount"]
+                    
+                    if (res.data["amount"] === 0.95) {
+                        transType = "sms"
+                    }
+                    
+                    if (res.data["amount"] === 18) {
+                        transType = "Admin Fees"
+                    }
+                    
+                    if (res.data["amount"] === 10) {
+                        transType = "EFT"
+                    }
+                    
+                    console.log(amountGot)
+                    //call function to update the database
+                    
+                    app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
+                        
+                        if (parseInt(tranformed["affectedRows"]) === 1) {
+                            console.log("Done")
+                        } else {
+                            console.log("failed")
+                        }
+                    
+                    }).catch(errr => {
+                        console.log(errr)
+                    })
+                }
+            })
+        })
+    })
+
+
+}, 4000);
+
+*/
+
+
+
 //get savings transactions
-router.get('/savingstransactions', (req, res) => {
+router.get('/savingstransactions', authModal.ensureToken, (req, res) => {
 
     app.savingsTrans(req.query.accountNo, req.query.transId).then(dt => {
-
-        console.log(dt.data)
 
         if (dt["status"] === 200) {
 
@@ -653,7 +761,7 @@ router.get('/savingstransactions', (req, res) => {
 })
 
 // loan repayment schedule
-router.post('/loanplan', (req, res) => {
+router.post('/loanplan', authModal.ensureToken, (req, res) => {
 
 
     let p = req.body.principal
@@ -675,12 +783,6 @@ router.post('/loanplan', (req, res) => {
     res.json(data)
 
 })
-
-
-
-
-
-
 
 
 module.exports = router
