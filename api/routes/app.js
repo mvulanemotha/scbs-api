@@ -271,11 +271,16 @@ router.post('/appauth', (req, res) => {
 //change password
 router.post('/changepassword', authModal.ensureToken, (req, res) => {
 
-    //call funtion to change passwor
+    //call funtion to change password
 
     let username = CryptoJS.AES.decrypt(req.body.username, process.env.encycriptionKey)
     let newpass = CryptoJS.AES.decrypt(req.body.newpass, process.env.encycriptionKey)
     let oldpass = CryptoJS.AES.decrypt(req.body.oldpass, process.env.encycriptionKey)
+
+    username = username.toString(CryptoJS.enc.Utf8)
+    newpass = newpass.toString(CryptoJS.enc.Utf8)
+    oldpass = oldpass.toString(CryptoJS.enc.Utf8)
+
 
     app.changePaasword(username, newpass, oldpass).then(data => {
 
@@ -325,10 +330,10 @@ router.post('/loantransfer', authModal.ensureToken, (req, res) => {
             if (dt["status"] === 200) {
 
                 // call function to do a withdrawal from the savings account
-                
+
                 //start by making a withdrawal from one account to deposit on another
                 app.makeWithdrawal(calculator.myDate(data.date), data.amount, data.fromAccount, data.toAccount).then(withdrwalRes => {
-                    
+
                     if (dt["status"] === 200) {
                         res.json("success")
                     }
@@ -623,10 +628,12 @@ router.get('/oldmessages', authModal.ensureToken, (req, res) => {
 
 
 //create a small service that will  update 0 chargies from the database
-/*
+
 setInterval(() => {
     
     //get data from database that has zero charge
+    
+    try{
     
     app.zeroCharge().then(data => {
         
@@ -636,8 +643,7 @@ setInterval(() => {
             
             app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
                 
-              
-                
+
                 if (res["status"] === 200) {
                     
                     let transType = "Withholding Tax"
@@ -674,17 +680,22 @@ setInterval(() => {
             })
         })
     })
-
+    
+    }catch(err){
+        console.log(err)
+    }
 
 }, 4000);
 
-*/
+
 
 
 
 //get savings transactions
 router.get('/savingstransactions', authModal.ensureToken, (req, res) => {
 
+
+    console.log("test")
     app.savingsTrans(req.query.accountNo, req.query.transId).then(dt => {
 
         if (dt["status"] === 200) {
@@ -734,7 +745,7 @@ router.get('/savingstransactions', authModal.ensureToken, (req, res) => {
                     "trans_date": dt.data["submittedOnDate"][0] + "-" + month + "-" + day,
                     "chargies_applied": dt.data["amount"]
                 }
-
+                console.log(newData)
                 res.json(newData)
 
             }
@@ -782,6 +793,33 @@ router.post('/loanplan', authModal.ensureToken, (req, res) => {
 
     res.json(data)
 
+})
+
+// get tempcode 
+router.get("/tempcode", (req, res) => {
+
+    // call function to get tempcode
+
+    let temp_code = req.query.tempCode
+
+    app.getTempcode(temp_code).then(data => {
+
+        console.log(data)
+
+        if (data.length === 1) {
+            data.forEach(dt => {
+
+                if (dt["status"] === 0) {
+                    res.json({ tempcode: dt["temporaryCode"], status: "Registered" })
+                } else {
+
+                    res.json({ tempcode: dt["temporaryCode"], status: "Un Registered" })
+                }
+            })
+        } else {
+            res.json({ tempcode: "NOT FOUND", status: "NOT FOUND" })
+        }
+    })
 })
 
 

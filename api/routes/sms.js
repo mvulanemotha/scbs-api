@@ -35,12 +35,17 @@ router.post('/saveclient', (req, res) => {
     //save customer numbers
     let data = req.body.data
 
+    console.log(data)
+
     data.forEach(el => {
 
+        //console.log(el)
+
+        
         // save data in database
         clients.saveClient(el["contact"]).then(dt => {
             console.log(dt)
-        })
+        }) 
     });
 })
 
@@ -48,9 +53,8 @@ router.post('/saveclient', (req, res) => {
 // send messages
 router.post('/sendmessage', (req, res) => {
 
-
-    let message = ""
-
+    let message = `Dear Valued Member, View your monthly statement via the STATUS Mobile APP. Download APP today:  https://play.google.com/store/apps/details?id=io.scbs.buildingsociety`
+    
     if (message === "") {
         console.log("No message available")
         return;
@@ -62,34 +66,17 @@ router.post('/sendmessage', (req, res) => {
         // get client to send to 
         clients.getClientLocal().then(dt => {
 
-            console.log(dt.length)
             if (dt.length === 0) {
                 console.log("completed")
             }
 
             dt.forEach(data => {
-
-                console.log(data["contact"])
-
-                sms.sendMessage(data["contact"], message, res)
-
-                clients.updateSentsms(data["contact"]).then(data => {
-                    console.log("saved")
-                })
-
+                sms.sendMessage(data["contact"], message)
             })
-
-            //console.log(dt["contact"])
-
-            /*
-            sms.sendMessage(dt["contact"], message, res)
-             
-             clients.updateSentsms(dt["contact"]).then(data => {
-                 console.log(dt["contact"])
-                 console.log("saved")
-             }) */
         })
-    }, 120000);
+    }, 10000);
+
+
 })
 
 

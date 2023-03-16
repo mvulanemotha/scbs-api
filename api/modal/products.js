@@ -73,9 +73,9 @@ let loanClientDetails = async (loanID) => {
 let savingsAccount = async (accountNo) => {
 
     try {
-
+        
         return await axios({
-
+            
             method: "get",
             url: process.env.url + "savingsaccounts/" + accountNo,
             withCredentials: true,
@@ -200,15 +200,15 @@ let runloanPenalty = async (accountNo, amount, date) => {
 //save mula accounts to help empty them when transfer has been made to clients
 
 let saveMulaAccounts = async (accountNo, amount) => {
-
+    
     try {
 
         return new Promise((resolve, reject) => {
 
             let query = "insert into mulaaccounts (accountNo , amount) select ?,? where not exists (select accountNo from mulaaccounts where accountNo = ?) limit 1"
-
+            
             db.query(query, [accountNo, amount, accountNo], (err, result) => {
-
+                
                 if (err) {
                     return reject(err)
                 }

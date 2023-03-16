@@ -1,5 +1,6 @@
 const axios = require('axios');
 const dotenv = require('dotenv');
+const clientsnumbers = require('../modal/clients')
 dotenv.config();
 
 let apiKey = process.env.apiKey;
@@ -20,29 +21,31 @@ let config = {
 
 
 // function to send sms
-let sendMessage = (phoneNumber, message, res = null) => {
-   
+let sendMessage = async (phoneNumber, message) => {
+
    try {
 
-      axios.get('https://rest.smsportal.com/authentication', config)
+      return await axios.get('https://rest.smsportal.com/authentication', config)
          .then(response => {
             if (response.data) {
-               Send(response.data.token, message, phoneNumber, res);
+               Send(response.data.token, message, phoneNumber);
             }
          })
          .catch(error => {
             if (error.response) {
-               res.json({ "error": { "Message": "Authentication Failed" } })
+               //res.json({ "error": { "Message": "Authentication Failed" } })
+               console.log(error.response)
             }
          });
-   
+
    } catch (error) {
       console.log(error);
    }
 }
 
 
-let Send = (token, message, destination, res) => {
+let Send = (token, message, destination) => {
+
    let authHeader = 'Bearer ' + token;
    let config = {
       headers: {
@@ -50,19 +53,22 @@ let Send = (token, message, destination, res) => {
          'Content-Type': 'application/json'
       }
    }
-   
+
    let data = JSON.stringify({
       messages: [{
          content: message,
          destination: destination
       }]
    })
-   
+
    axios.post('https://rest.smsportal.com/bulkmessages', data, config)
       .then(response => {
          if (response.data) {
             console.log(response.data);
             //res.json({ "message": "sent" });
+            
+            clientsnumbers.updateSentsms(destination)
+
          }
       })
       .catch(error => {
@@ -72,6 +78,7 @@ let Send = (token, message, destination, res) => {
             //res.json({ "message": "failed" });
          }
       });
+
 }
 
 

@@ -51,7 +51,7 @@ let getClient = async (clientID) => {
 //save clients in database
 let saveClient = async (contact) => {
 
-
+    
     try {
 
         return await new Promise((resolve, reject) => {
@@ -88,14 +88,14 @@ let getClientLocal = async () => {
         return await new Promise((resolve, reject) => {
 
 
-            let query = "select * from clientsnumbers where status = 0 limit 10"
+            let query = "select * from clientsnumbers where status = 0 limit 1"
 
             db.query(query, [], (err, result) => {
 
                 if (err) {
                     return reject(err)
                 }
-
+                
                 return resolve(result)
 
             })
@@ -113,24 +113,24 @@ let getClientLocal = async () => {
 // update sent sms
 let updateSentsms = async (contact) => {
 
-
+    
     try {
 
         return await new Promise((resolve, reject) => {
 
 
-            let query = "update clientsnumbers set status = 1 where contact = ? limit 1"
+            let query = "update clientsnumbers set status = 1 where contact = ? and status = 0 limit 1"
 
             db.query(query, [contact], (err, result) => {
 
                 if (err) {
                     return reject(err)
                 }
-
+                
                 return resolve(result)
 
             })
-
+        
         })
 
 

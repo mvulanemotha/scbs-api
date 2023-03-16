@@ -38,7 +38,7 @@ router.post('/smscharge', (req, res) => {
 
 
   setInterval(() => {
-    
+
     chargies.getmulaBalances().then((res) => {
 
       let data = res
@@ -47,7 +47,7 @@ router.post('/smscharge', (req, res) => {
         let message = "Your account " + 'xxxxxx' + dt["accountNo"].slice(5) + " has been credited with SZL" + dt["balance"] + " on " + dateTime + ". Ref: " + dt["customerNo"]
 
           + " For queries call 24171975"
-        
+
         sms.sendMessage(dt['customerNo'], message, res)
 
         //call function to update sent sms
@@ -56,7 +56,7 @@ router.post('/smscharge', (req, res) => {
     })
   }, 10000);
 
-  
+
 })
 
 
@@ -83,14 +83,14 @@ router.post('/sms', (req, res) => {
 
     //checking if the are records in the database
     try {
-      
+
       chargies.getsms().then(data => {
 
         if (data.length === 0) {
           console.log("ALL SMS CHARGE RUN")
           return;
         }
-        
+
 
         data.forEach(el => {
 
@@ -144,16 +144,16 @@ router.post('/sms', (req, res) => {
 
 //run eft
 router.post('/eft', (req, res) => {
-  
+
   setInterval(() => {
 
     //checking if the are records in the database
     try {
-      
+
       chargies.geteft().then(data => {
 
         if (data.length === 0) {
-          console.log("ALL ADMIN FEES RUN")
+          console.log("ALL EFT FEES HAVE BEEN RUN")
           return;
         }
 
@@ -202,8 +202,8 @@ router.post('/eft', (req, res) => {
     } catch (error) {
       console.log(error)
     }
-  
-  }, 10000);
+
+  }, 6000);
 
 })
 
@@ -231,7 +231,7 @@ router.post("/mulaadminfees", (req, res) => {
           console.log(el["accountNo"])
 
           chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 12, calculator.myDate(el["date"])).then(dt => {
-            
+
             let data = dt.data
 
             var resourceID = data["resourceId"]
@@ -278,7 +278,7 @@ router.post("/mulaadminfees", (req, res) => {
 router.post("/mulawithholdingtax", (req, res) => {
 
   setInterval(() => {
-    
+
     //checking if the are records in the database
     try {
 
@@ -288,12 +288,12 @@ router.post("/mulawithholdingtax", (req, res) => {
           console.log("ALL POSTINGS HAVE BEEN MADE")
           return;
         }
-        
+
 
         data.forEach(el => {
 
           var amount = ((parseFloat(el["interest"])) * (0.1))
-          
+
           console.log(amount)
           console.log(el["accountNo"])
 
@@ -330,12 +330,12 @@ router.post("/mulawithholdingtax", (req, res) => {
       }).catch(err => {
         console.log(err)
       })
-    
+
     } catch (error) {
       console.log(error)
     }
 
-  }, 10000);
+  }, 8000);
 
 })
 
@@ -561,11 +561,8 @@ router.post('/savingsatmcharge', (req, res) => {
         //console.log(payed)
 
       })
-
     }
-
   })
-
 })
 
 
@@ -614,7 +611,7 @@ router.post('/paychargies', async (req, res) => {
       }
     })
 
-  }, 60000);
+  }, 6000);
 
 
 
@@ -787,14 +784,14 @@ router.post('/savepayloancharge', (req, res) => {
   }
 
   //console.log(data.length)
-  
+
   try {
-    
-    
+
+
     data.forEach(el => {
-      
+
       //console.log(data)
-      
+
       //console.log(el["date"])
       // number used matches the charge code
       chargies.saveLoanClientCharge(el["accountNo"], 6, el["Amount"], calculator.myDate(el["date"])).then(data1 => {
@@ -806,7 +803,7 @@ router.post('/savepayloancharge', (req, res) => {
           } else {
             countSaved++
           }
-          
+
           if (countSaved === data.length) {
             savedLoansPenalties(res, all = "all")
           }
@@ -964,40 +961,41 @@ router.post('/adminfee', async (req, res) => {
 // run each month addmin fee for each loan
 router.post('/runloanadminfees', async (req, res) => {
 
-  let date = req.body.date
-
   try {
 
-    var countSaved = 0
 
-    //run and pay all loans for this current month
-    chargies.getUnRunMonthlyAdmin(date).then(data => {
-      //store data
-      var mydata = data
+    setInterval(() => {
 
-      mydata.forEach(dt => {
+      //run and pay all loans for this current month
+      chargies.getUnRunMonthlyAdmin().then(data => {
+        //store data
+        var mydata = data
+        
+        if (data.length === 0) {
+          console.log("DONE")
+        }
 
-        // MONTHLY ADMIN FEES WILL HAVE ITS OWN UNIQUE VALUE ID
-        chargies.saveLoanClientCharge(dt["accountNo"], 3, 50, calculator.myDate(date)).then(data => {
+        mydata.forEach(dt => {
 
-          //pay the loan charge
-          console.log(data)
-          if (data.data !== undefined) {
-            //save account in data 
-            chargies.saveMonthlyAdminFeeLoanAccount(dt["accountNo"], date).then(data => {
+          // MONTHLY ADMIN FEES WILL HAVE ITS OWN UNIQUE VALUE ID
+          chargies.saveLoanClientCharge(dt["accountNo"], 3, 50, calculator.myDate(dt["date"])).then(data => {
 
-              if (data.affectedRows === 1) {
-                countSaved++
-              }
+            //pay the loan charge
+            console.log(data["data"])
+            if (data.data !== undefined) {
 
-              if (mydata.length === countSaved) {
-                res.json({ message: "saved" })
-              }
-            })
-          }
+              // update when charge has been updated
+              chargies.updateSavedAdminFee(dt["accountNo"]).then(found => {
+
+                console.log(found)
+
+              })
+            }
+          })
         })
       })
-    })
+    }, 10000);
+
   } catch (error) {
     console.log(error)
   }

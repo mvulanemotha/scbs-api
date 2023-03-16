@@ -64,9 +64,6 @@ let loanApplication = async (clientNo, amount, submittedDate, repaymentDate, dis
         data: data,
         headers: headers.headers()
     })
-
-
-
 }
 
 
@@ -604,12 +601,17 @@ let makeWithdrawal = async (withrawalDate, amount, accountNo, toAccount) => {
     try {
 
         let receipt
-
+        
+        /*
+        
         if (toAccount != "Customer payout") {
             receipt = "Transferd to " + toAccount
         } else {
             receipt = "Customer payout"
         }
+        */
+        
+
 
         let data = {
             "locale": "en",
@@ -620,19 +622,19 @@ let makeWithdrawal = async (withrawalDate, amount, accountNo, toAccount) => {
             "accountNumber": accountNo,
             // "checkNumber": "che123",
             // "routingCode": "rou123",
-            "receiptNumber": "Transfer to" + toAccount,//receipt,
+            "receiptNumber": "Paid to client",//receipt,
             "bankNumber": "scbs"
         }
 
         return await axios({
-
+            
             method: "post",
             url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=withdrawal",
             withCredentials: true,
             crossdomain: true,
             headers: headers.headers(),
             data: data
-
+        
         })
 
     } catch (error) {
@@ -810,12 +812,12 @@ let alertIT = (contact, email) => {
 
 // send email to clients to reset password
 let sendResetEmail = (email, newPassword) => {
-
-
+    
+    
     try {
-
+        
         var transporter = nodemailer.createTransport({
-
+            
             service: "Outlook365",
             host: 'smtp-mail.outlook.com',                  // hostname
             //service: 'outlook', 
@@ -832,9 +834,9 @@ let sendResetEmail = (email, newPassword) => {
                 rejectUnauthorized: false
             }
         })
-
+        
         transporter.sendMail({
-
+            
             from: {
                 name: 'STATUS CAPITAL',
                 address: 'it@scbs.co.sz' //process.env.frommail
@@ -842,7 +844,7 @@ let sendResetEmail = (email, newPassword) => {
             to: email,
             subject: 'Password Reset',
             text: 'Password Reset',
-
+            
             html: "Dear Valued customer: <br><br>"
                 + "Your new password is:" + newPassword
                 + "<br>We recommand that you change it upone login"
@@ -854,12 +856,12 @@ let sendResetEmail = (email, newPassword) => {
                 res.json("failed");
             } else {
                 //update database for new password
-
-
+                
+                
                 res.json("sent")
             }
         })
-
+    
     } catch (error) {
         console.log(error)
     }
@@ -942,9 +944,35 @@ let updateZeroCharge = async (tran_id, chargeName, amount) => {
     } catch (error) {
         console.log(error)
     }
+}
+
+//
+let getTempcode = async (cif) => {
+    
+    try {
+        
+        return await new Promise((resolve, reject) => {
+            
+            let query = "select * from customerno where customerNo = ? limit 1"
+            
+            db.query(query, [cif], (err, result) => {
+                
+                if (err) {
+                    return reject(err)
+                }
+                
+                return resolve(result)
+            
+            })
+        
+        })
+    
+    } catch (error) {
+        console.log(error)
+    }
 
 }
 
 
-module.exports = { zeroCharge, updateZeroCharge, updateEmailsent, assingNewPassword, sendResetEmail, alertIT, resetPassEmail, resetAttempts, loginAttempts, getLoginAttempts, savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
+module.exports = { getTempcode, zeroCharge, updateZeroCharge, updateEmailsent, assingNewPassword, sendResetEmail, alertIT, resetPassEmail, resetAttempts, loginAttempts, getLoginAttempts, savingsTrans, loanRepayment, makeDeposit, makeWithdrawal, oldMessages, saveReadMessages, messages, recordAccountStatement, loanDetails, getSavingsTransactions, transactions, savingsTranfers, clientAccounts, loanApplication, saveCustomers, getClientsCodes, registerAppUser, updateStatus, appUserLogin, getCustomerNo, changePaasword, transferMoney }
 

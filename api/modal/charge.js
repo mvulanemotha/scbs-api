@@ -710,6 +710,35 @@ let saveLoanClientCharge = async (accountNo, chargeid, amount, date) => {
 
 }
 
+// update when a charge has been paid
+let updateSavedAdminFee = async (accountNo) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "update loanadminfee set status = 1 where accountNo = ? limit 1"
+
+            db2.query(query, [accountNo], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+
+}
+
+
+
+
+
 // make charge payments in musoni
 
 let payMusoniLoanChargies = async (accountNo, chargeId, date) => {
@@ -995,7 +1024,7 @@ let getMonthlyLoanAccounts = async () => {
 }
 
 //
-let getUnRunMonthlyAdmin = async (date) => {
+let getUnRunMonthlyAdmin = async () => {
 
     try {
 
@@ -1003,9 +1032,11 @@ let getUnRunMonthlyAdmin = async (date) => {
 
         return new Promise((resolve, reject) => {
 
-            let query = "select * from loanadminfee where accountNo not in (select accountNo from loanadminprocess where Month(date) = Month(?))"
+            //let query = "select * from loanadminfee where accountNo not in (select accountNo from loanadminprocess where Month(date) = Month(?))"
 
-            db.query(query, [date], (err, result) => {
+            let query = "select * from loanadminfee where status = 0 limit 1"
+
+            db.query(query, (err, result) => {
 
                 if (err) {
                     return reject(err)
@@ -1024,17 +1055,17 @@ let getUnRunMonthlyAdmin = async (date) => {
 let storeMulaAccounts = async (accountNo, interest, date) => {
 
     try {
-        
+
         return await new Promise((resolve, reject) => {
 
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,?"//where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
-            
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? " //where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+
             db2.query(query, [accountNo, interest, date], (err, result) => {
 
                 if (err) {
                     return reject(err)
                 }
-
+                
                 return resolve(result)
 
             })
@@ -1308,6 +1339,7 @@ let checkStatement = async (accountNo) => {
 
 
 module.exports = {
+    updateSavedAdminFee,
     getsms, updatesms, checkStatement, saveMulaBalances, getmulaBalances, updateSent,
     updategetWithholdingTax, updategetadminfee, updategeteft, getWithholdingTax, geteft, getadminfee,
     storeMulaAccounts, getMonthlyLoanAccounts, getUnRunMonthlyAdmin, storeRanmpp, monthlyLoanFee,

