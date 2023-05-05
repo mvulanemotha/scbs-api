@@ -675,11 +675,10 @@ let updateWhenChecked = (accountNo) => {
 // save loan charge in muson
 let saveLoanClientCharge = async (accountNo, chargeid, amount, date) => {
 
+
+    // improve by having charge array to be used to post the charge
+
     try {
-
-
-
-        // improve by having charge array to be used to post the charge
 
         let data = {
 
@@ -700,12 +699,10 @@ let saveLoanClientCharge = async (accountNo, chargeid, amount, date) => {
             data: data,
             headers: headers.headers()
 
-        }).catch((err) => {
-            console.log(err)
         })
 
-    } catch (error) {
-        console.log(error)
+    } catch (err) {
+        console.log(err)
     }
 
 }
@@ -1057,15 +1054,15 @@ let storeMulaAccounts = async (accountNo, interest, date) => {
     try {
 
         return await new Promise((resolve, reject) => {
-
+            
             let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? " //where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
-
-            db2.query(query, [accountNo, interest, date], (err, result) => {
+            
+            db2.query(query, [accountNo, interest, date ], (err, result) => {
 
                 if (err) {
                     return reject(err)
                 }
-                
+
                 return resolve(result)
 
             })

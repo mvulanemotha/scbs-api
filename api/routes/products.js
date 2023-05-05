@@ -25,7 +25,6 @@ router.get('/loans', async (req, res) => {
     }).catch((err) => {
         console.log(err)
     })
-
 })
 
 // get all loan chargies
@@ -145,7 +144,7 @@ router.post('/runloanArears', (req, res) => {
                     
                     let arrears = parseFloat(el["totalOverDue"])
                     
-                    let amount = (1 / 12) * (13.25 / 100) * (arrears)
+                    let amount = (1 / 12) * (13.75 / 100) * (arrears)
                     
                     console.log(el["accountNo"])
                     console.log(amount)
@@ -199,7 +198,7 @@ router.post('/emptyMulaAccounts', (req, res) => {
                 dt.forEach(el => {
                     
                     //make a withdrawal of some amount calculator.myDate(transDate)
-                    app.makeWithdrawal(calculator.myDate(todayDate), el["amount"], el["accountNo"], "Customer Payout").then((withdraw) => {
+                    app.makeWithdrawal(calculator.myDate(todayDate), el["amount"], el["accountNo"], "Paid To Customer").then((withdraw) => {
                         
                         console.log(withdraw.data)
                         
@@ -208,13 +207,12 @@ router.post('/emptyMulaAccounts', (req, res) => {
 
                         if (withdraw["status"] === 200) {
                             
-
-
+                            
                             //call function to update database
                             products.updateMulaAccounts(el["accountNo"]).then(updated => {
                                 
                                 //console.log(updated.data)
-                            
+
                             })
                         
                         }

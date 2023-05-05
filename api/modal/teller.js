@@ -7,34 +7,31 @@ const db = require("../../db/charge");
 
 //make a deposite
 let deposite = async (accountNo, date, amount, bank, receipt, username, password) => {
-
+    
     try {
 
-
+        
         let data = {
-
+            
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
             "transactionDate": date,
             "transactionAmount": amount,
             "paymentTypeId": 177,
             "accountNumber": accountNo,
-            ///"checkNumber": "che123",
-            //"routingCode": "rou123",
             "receiptNumber": receipt,
-            //"bankNumber": bank
-
+        
         }
         
         return await axios({
-
+            
             method: "post",
             url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=deposit",
             withCredentials: true,
             crossdomain: true,
             headers: headers.tellerHeaders(username, password),
             data: data
-
+        
         })
 
     } catch (error) {

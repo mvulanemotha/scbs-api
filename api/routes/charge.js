@@ -209,7 +209,7 @@ router.post('/eft', (req, res) => {
 
 //admin fee 
 router.post("/mulaadminfees", (req, res) => {
-
+  
   setInterval(() => {
 
     //checking if the are records in the database
@@ -444,9 +444,6 @@ router.get("/getsavings", async (req, res) => {
   // we have to get the last transaction type
   // call a function
 
-
-
-
   //impliment a start value
   let startTrans = 412;
   let endTrans = startTrans + 4;
@@ -491,10 +488,7 @@ router.get("/getsavings", async (req, res) => {
       //console.log(mydata)
       res.json(mydata)
     })
-
   });
-
-
 })
 
 
@@ -534,7 +528,6 @@ router.post("/createacccharge", async (req, res) => {
 
         chargies.createClientCharge(el.accountNo, calculator.calculator(el.amount, 1.2)).then((data) => {
           //res.json(JSON.parse(JSON.stringify(data)))
-
           // console.log(data)
         })
       })
@@ -780,7 +773,6 @@ router.post('/savepayloancharge', (req, res) => {
     if (all === "some") {
       res.json({ message: "Some Loan Penalties Have Been Paid" })
     }
-
   }
 
   //console.log(data.length)
@@ -790,12 +782,7 @@ router.post('/savepayloancharge', (req, res) => {
 
     data.forEach(el => {
 
-      //console.log(data)
-
-      //console.log(el["date"])
-      // number used matches the charge code
       chargies.saveLoanClientCharge(el["accountNo"], 6, el["Amount"], calculator.myDate(el["date"])).then(data1 => {
-
         //save data of all the saved detai
         try {
           if (data1 === undefined) {
@@ -812,27 +799,16 @@ router.post('/savepayloancharge', (req, res) => {
           if ((data.length / 2) > countSaved) {
             savedLoansPenalties(res, all = "some")
           }
-
-
-
-
         } catch (err) {
           //console.log(err)
         }
-
-
       }).catch(err => {
         //console.log(err)
       })
-
     });
-
-
   } catch (error) {
     //console.log(error)
   }
-
-
 })
 
 
@@ -970,7 +946,7 @@ router.post('/runloanadminfees', async (req, res) => {
       chargies.getUnRunMonthlyAdmin().then(data => {
         //store data
         var mydata = data
-        
+
         if (data.length === 0) {
           console.log("DONE")
         }
@@ -981,14 +957,15 @@ router.post('/runloanadminfees', async (req, res) => {
           chargies.saveLoanClientCharge(dt["accountNo"], 3, 50, calculator.myDate(dt["date"])).then(data => {
 
             //pay the loan charge
-            console.log(data["data"])
             if (data.data !== undefined) {
+
+              console.log(data.data)
 
               // update when charge has been updated
               chargies.updateSavedAdminFee(dt["accountNo"]).then(found => {
 
                 console.log(found)
-
+              
               })
             }
           })

@@ -10,8 +10,95 @@ const authModal = require('../modal/auth')
 const chargies = require('../modal/charge')
 const jwt = require('jsonwebtoken')
 var CryptoJS = require("crypto-js");
-//router to get all clients accounts
 
+
+//get all enquiries
+router.get('/all', async (req, res) => {
+
+    await app.getAllEnquries().then((data) => {
+
+        res.status(200).json(data)
+
+    })
+
+})
+
+//update enquiries
+router.put('/', async (req, res) => {
+    
+    //update inquire
+    await app.updateEnquire(req.body.no, req.body.status, req.body.scbsEmployee).then(data => {
+        
+        res.status(200).json(data)
+    
+    }).catch(err => {
+
+        console.log(err)
+
+    })
+
+})
+
+
+//delete enquire
+router.post('/inquiredelete', authModal.ensureToken, async (req, res) => {
+
+    await app.deleteEnquire(req.body.no).then((data) => {
+
+        if (data.affectedRows === 1) {
+            res.status(200).json({ "message": "deleted" })
+        } else {
+            res.json({ "message": "failed" })
+        }
+
+    })
+
+})
+
+//get client enquire
+router.get('/inquire', authModal.ensureToken, async (req, res) => {
+
+
+    await app.getMyInquire(req.query.ClientNo).then((data) => {
+
+        res.status(200).json(data)
+
+    })
+
+})
+
+//save inquire in the database
+router.post('/inquire', authModal.ensureToken, async (req, res) => {
+
+    let inquire = CryptoJS.AES.decrypt(req.body.inquire, process.env.encycriptionKey)
+    let title = CryptoJS.AES.decrypt(req.body.title, process.env.encycriptionKey)
+    let name = CryptoJS.AES.decrypt(req.body.name, process.env.encycriptionKey)
+    let userAccount = CryptoJS.AES.decrypt(req.body.userAccount, process.env.encycriptionKey)
+
+    name = name.toString(CryptoJS.enc.Utf8)
+    inquire = inquire.toString(CryptoJS.enc.Utf8)
+    title = title.toString(CryptoJS.enc.Utf8)
+    clientNo = userAccount.toString(CryptoJS.enc.Utf8)
+
+    //save in database
+    await app.saveInquire(clientNo, name, title, inquire).then(data => {
+
+        if (data.affectedRows === 1) {
+            res.json({ message: "saved" })
+        } else {
+            res.json({ message: "failed" })
+        }
+
+    }).catch(err => {
+        console.log(err.message)
+    })
+
+
+
+})
+
+
+//router to get all clients accounts
 router.get('/clients_accounts', authModal.ensureToken, (req, res) => {
 
     let clientNo = req.query.clientNo
@@ -630,58 +717,58 @@ router.get('/oldmessages', authModal.ensureToken, (req, res) => {
 //create a small service that will  update 0 chargies from the database
 
 setInterval(() => {
-    
-    //get data from database that has zero charge
-    
-    try{
-    
-    app.zeroCharge().then(data => {
-        
-        //console.log(data)
-        
-        data.forEach((dt) => {
-            
-            app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
-                
 
-                if (res["status"] === 200) {
-                    
-                    let transType = "Withholding Tax"
-                    
-                    let amountGot = res.data["amount"]
-                    
-                    if (res.data["amount"] === 0.95) {
-                        transType = "sms"
-                    }
-                    
-                    if (res.data["amount"] === 18) {
-                        transType = "Admin Fees"
-                    }
-                    
-                    if (res.data["amount"] === 10) {
-                        transType = "EFT"
-                    }
-                    
-                    console.log(amountGot)
-                    //call function to update the database
-                    
-                    app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
-                        
-                        if (parseInt(tranformed["affectedRows"]) === 1) {
-                            console.log("Done")
-                        } else {
-                            console.log("failed")
+    //get data from database that has zero charge
+
+    try {
+
+        app.zeroCharge().then(data => {
+
+            //console.log(data)
+
+            data.forEach((dt) => {
+
+                app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
+
+
+                    if (res["status"] === 200) {
+
+                        let transType = "Withholding Tax"
+
+                        let amountGot = res.data["amount"]
+
+                        if (res.data["amount"] === 0.95) {
+                            transType = "sms"
                         }
-                    
-                    }).catch(errr => {
-                        console.log(errr)
-                    })
-                }
+
+                        if (res.data["amount"] === 18) {
+                            transType = "Admin Fees"
+                        }
+
+                        if (res.data["amount"] === 10) {
+                            transType = "EFT"
+                        }
+
+                        console.log(amountGot)
+                        //call function to update the database
+
+                        app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
+
+                            if (parseInt(tranformed["affectedRows"]) === 1) {
+                                console.log("Done")
+                            } else {
+                                console.log("failed")
+                            }
+
+                        }).catch(errr => {
+                            console.log(errr)
+                        })
+                    }
+                })
             })
         })
-    })
-    
-    }catch(err){
+
+    } catch (err) {
         console.log(err)
     }
 

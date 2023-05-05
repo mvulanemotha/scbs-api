@@ -51,11 +51,10 @@ router.post('/deposits', async (req, res) => {
 
 // call function to get deposist
 router.get('/deposits', async (req, res) => {
-    console.log(req.query.clientId)
-    console.log(req.query.accountNo)
+
     // call function to get deposits
     fixed.getDeposits(req.query.accountNo, req.query.clientId).then(data => {
-
+        
         res.json(data)
 
     }).catch((error) => {
