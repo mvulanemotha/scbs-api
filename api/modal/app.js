@@ -562,9 +562,9 @@ let loanRepayment = async (accountNo, amount, fromAccount, transferDate) => {
 
 // make a deposit 
 let makeDeposit = async (depositDate, amount, accountNo, fromAccount) => {
-
+    
     try {
-
+        
         let data = {
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
@@ -577,18 +577,18 @@ let makeDeposit = async (depositDate, amount, accountNo, fromAccount) => {
             "receiptNumber": "From " + fromAccount,
             "bankNumber": "scbs"
         }
-
+        
         return await axios({
-
+            
             method: "post",
             url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=deposit",
             withCredentials: true,
             crossdomain: true,
             headers: headers.headers(),
             data: data
-
+        
         })
-
+    
     } catch (error) {
         console.log(error)
     }

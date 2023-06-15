@@ -363,7 +363,7 @@ router.post('/changepassword', authModal.ensureToken, (req, res) => {
     let username = CryptoJS.AES.decrypt(req.body.username, process.env.encycriptionKey)
     let newpass = CryptoJS.AES.decrypt(req.body.newpass, process.env.encycriptionKey)
     let oldpass = CryptoJS.AES.decrypt(req.body.oldpass, process.env.encycriptionKey)
-
+    
     username = username.toString(CryptoJS.enc.Utf8)
     newpass = newpass.toString(CryptoJS.enc.Utf8)
     oldpass = oldpass.toString(CryptoJS.enc.Utf8)
@@ -895,7 +895,7 @@ router.get("/tempcode", (req, res) => {
 
         if (data.length === 1) {
             data.forEach(dt => {
-
+                
                 if (dt["status"] === 0) {
                     res.json({ tempcode: dt["temporaryCode"], status: "Registered" })
                 } else {

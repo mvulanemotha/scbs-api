@@ -43,11 +43,11 @@ let deposite = async (accountNo, date, amount, bank, receipt, username, password
 //make a withdrawal
 
 let withdrawalTransaction = async (accountNo, amount, date, receipt, username, password) => {
-
+    
     try {
-
+        
         let data = {
-
+            
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
             "transactionDate": date,
@@ -60,7 +60,7 @@ let withdrawalTransaction = async (accountNo, amount, date, receipt, username, p
             //"bankNumber": "ban123"
 
         }
-
+        
 
         return await axios({
 
@@ -71,7 +71,7 @@ let withdrawalTransaction = async (accountNo, amount, date, receipt, username, p
             headers: headers.tellerHeaders(username, password),
             data: data
         })
-
+    
     } catch (error) {
         console.log(error)
     }

@@ -144,7 +144,7 @@ router.post('/runloanArears', (req, res) => {
                     
                     let arrears = parseFloat(el["totalOverDue"])
                     
-                    let amount = (1 / 12) * (13.75 / 100) * (arrears)
+                    let amount = (1 / 12) * (14.75 / 100) * (arrears)
                     
                     console.log(el["accountNo"])
                     console.log(amount)
@@ -193,6 +193,8 @@ router.post('/emptyMulaAccounts', (req, res) => {
             
             products.getMulaAccount().then(dt => {
                 
+                console.log(dt.length)
+
                 //console.log(dt)
                 
                 dt.forEach(el => {

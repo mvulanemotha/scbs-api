@@ -1055,7 +1055,7 @@ let storeMulaAccounts = async (accountNo, interest, date) => {
 
         return await new Promise((resolve, reject) => {
             
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? " //where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,?" // where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
             
             db2.query(query, [accountNo, interest, date ], (err, result) => {
 

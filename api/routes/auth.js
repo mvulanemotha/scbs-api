@@ -15,11 +15,7 @@ router.post('/', async (req, res) => {
         if (data === undefined) {
             res.json({ message: "Failed To Login" })
         } else {
-
-            // call function to create an auth variable
-
-
-
+            
             //save a user to be user in denoms
             res.json(data.data)
         }
