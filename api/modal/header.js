@@ -5,7 +5,7 @@ dotenv.config();
 
 let tellerHeaders = (username, password) => {
   
-  let apiKey = process.env.key;
+  let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO'
   
   let musonCredentials = username + ':' + password
   
@@ -41,9 +41,9 @@ User1 = 'Status Capital API'
 Password1 = 'Status12345'
   */
   
-  let apiKey = process.env.key//'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO' //process.env.key;
-  let username = process.env.User // 'Status Capital API' //process.env.User
-  let password = process.env.password // 'Status12345' //process.env.password
+  let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO' //process.env.key;
+  let username = 'Status Capital API' //process.env.User
+  let password = 'Status12345' //process.env.password
    
   
   
