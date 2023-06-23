@@ -25,13 +25,13 @@ app.use(bodyParser.urlencoded({ limit: '70mb', extended: false }))
 app.use(morgan('dev'))
 
 app.use((req, res, next) => {
-    
+
     res.header('Access-Control-Allow-Origin', '*')
     res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
     //res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     res.header('Access-Control-Allow-Headers', '*');
-  
-    
+
+
     if ('OPTIONS' == req.method) {
         res.sendStatus(200);
     } else {
@@ -41,22 +41,22 @@ app.use((req, res, next) => {
 
 app.use(express.json())
 
-app.use('/chargies', chargies)
-app.use('/jobs', jobs)
-app.use('/ ', charge)
-app.use('/clients', clients)
-app.use('/products', products)
-app.use('/withholdingtax', withholdingtax)
-app.use('/transactions', transactions)
-app.use('/login', login)
-app.use('/teller', teller)
-app.use('/auth', auth)
-app.use('/sms', sms)
-app.use('/denoms', denomns)
-app.use('/fixedproducts', fixedproducts)
-app.use('/clientapp', clientapp)
-app.use('/email', email)
-app.use('/charge', chargies)
+app.use('/scbsserver/chargies', chargies)
+app.use('/scbsserver/jobs', jobs)
+app.use('/scbsserver/ ', charge)
+app.use('/scbsserver/clients', clients)
+app.use('/scbsserver/products', products)
+app.use('/scbsserver/withholdingtax', withholdingtax)
+app.use('/scbsserver/transactions', transactions)
+app.use('/scbsserver/login', login)
+app.use('/scbsserver/teller', teller)
+app.use('/scbsserver/auth', auth)
+app.use('/scbsserver/sms', sms)
+app.use('/scbsserver/denoms', denomns)
+app.use('/scbsserver/fixedproducts', fixedproducts)
+app.use('/scbsserver/clientapp', clientapp)
+app.use('/scbsserver/email', email)
+app.use('/scbsserver/charge', chargies)
 
 
 // handling errors if none of the routes were accessed
