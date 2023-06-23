@@ -2,7 +2,8 @@ const headers = require("../modal/header")
 const dotenv = require('dotenv');
 const { default: axios } = require('axios');
 dotenv.config();
-const db = require('../../db/charge')
+const db = require('../../db/charge');
+const clDb = require('../../db/clients')
 
 
 // gets loans associated with a client
@@ -206,7 +207,7 @@ let saveMulaAccounts = async (accountNo, amount) => {
         return new Promise((resolve, reject) => {
 
             let query = "insert into mulaaccounts (accountNo , amount) select ?,? "//where not exists (select accountNo from mulaaccounts where accountNo = ?) limit 1"
-            
+
             db.query(query, [accountNo, amount], (err, result) => {
 
                 if (err) {
@@ -458,6 +459,58 @@ let loanReshedule = async (accountNo, rate, month) => {
     }
 }
 
+// loan transctions
+
+let getloansTransactions = async (accountNo) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "select * from loantrasactions where accountNo = ?"
+            
+            clDb.query(query, [accountNo], (err, result) => {
+                
+                if (err) {
+                    return reject(err)
+                }
+                return resolve(result)
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error.message)
+    }
+
+}
+
+//save loan transactions
+let saveLoanTransctions = async (accountNo, transaction) => {
+
+    try {
+
+        return await new Promise((resolve, reject) => {
+
+            let query = "insert into loantrasactions(accountNo , transaction) select ?, ? where not exists (select transaction from loantrasactions where transaction = ?)"
+
+            clDb.query(query, [accountNo, transaction, transaction], (err, result) => {
+
+                if (err) {
+                    return reject(err)
+                }
+
+                return resolve(result)
+
+            })
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
 
 
-module.exports = { loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
+module.exports = {getloansTransactions,  getLoanArearsDetails, saveLoanTransctions, loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }

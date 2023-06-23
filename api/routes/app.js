@@ -188,23 +188,7 @@ router.get('/clientsCodes', (req, res) => {
 
             sms.sendMessage(dt["contact"], message, res)
         });
-
-
-        /*
-         customerNo: '0912',
-        temporaryCode: 'SCBS-818295',
-        status: 1,
-        contact: '76222186'
-        */
-
-
-        // call function to send sms     
-        /*sms.sendMessage(number, message, res).then((data) => {
-            
-            res.json({ message: "sent" })
-        
-        })*/
-
+    
     }).catch((err) => {
 
         res.sendStatus(err)
@@ -344,14 +328,9 @@ router.post('/appauth', (req, res) => {
             console.log(errrr)
         })
 
-
-
     } catch (error) {
         console.log(error)
     }
-
-
-
 })
 
 
@@ -523,12 +502,13 @@ router.get('/loandetails', authModal.ensureToken, (req, res) => {
         var account = req.query.accountNo
         var accontsCount = 0
         var response = []
-
+        
+        console.log(req.query.loanCount)
+        
         if (req.query.loanCount == 1) {
-
+            
             // call function to get loan details
             app.loanDetails(req.query.accountNo).then(data => {
-
                 res.json(data.data)
 
             }).catch((err) => {
@@ -547,7 +527,6 @@ router.get('/loandetails', authModal.ensureToken, (req, res) => {
                     response.push(data.data)
 
                     //res.json(data.data)
-                    console.log(acc)
                     if (accontsCount === account.length) {
                         res.json(response)
                     }
@@ -781,8 +760,6 @@ setInterval(() => {
 //get savings transactions
 router.get('/savingstransactions', authModal.ensureToken, (req, res) => {
 
-
-    console.log("test")
     app.savingsTrans(req.query.accountNo, req.query.transId).then(dt => {
 
         if (dt["status"] === 200) {
@@ -836,19 +813,6 @@ router.get('/savingstransactions', authModal.ensureToken, (req, res) => {
                 res.json(newData)
 
             }
-
-
-
-
-            /*
-               tempTrans.push({
-                "trans_type": "Charge Payment",
-                "trans_date": res["submittedOnDate"][0] + "-" + month + "-" + day,
-                "chargies_applied": res["amount"]
-              })            
-            */
-
-
 
         }
 

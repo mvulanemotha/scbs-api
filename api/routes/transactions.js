@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const transactions = require('../modal/charge');
 const app = require('../modal/app')
+const loantransactions = require('../modal/products')
 
 
 router.get('/', (req, res) => {
@@ -49,7 +50,6 @@ router.get('/savings', (req, res) => {
 router.post('/storetransactions', (req, res) => {
 
     //get function to store transactions
-    console.log(req.body.data)
 
     let data = req.body.data
 
@@ -62,7 +62,7 @@ router.post('/storetransactions', (req, res) => {
                 console.log(response)
 
             }).catch((err) => {
-                
+
                 console.log(err)
                 return
 
@@ -70,6 +70,59 @@ router.post('/storetransactions', (req, res) => {
     });
 })
 
+// save loans transactions 
+router.post('/storeloantransactions', (req, res) => {
+
+    let data = req.body.data
+
+    let datasize = data.length
+    let savedCount = 0
+    let innerCount = 0
+
+    data.forEach(async el => {
+
+        await loantransactions.saveLoanTransctions(el["accountNo"], el["transaction"]).then((saved) => {
+
+            innerCount++
+
+            if (saved["affectedRows"] === 1) {
+
+                savedCount++
+
+            }
+
+            if (innerCount === datasize) {
+
+                if ((savedCount < datasize) && (savedCount > 0)) {
+                    res.json({ "message": "Some Transactions have been saved" })
+                }
+
+                if (savedCount === datasize) {
+                    res.json({ "message": "Transactions Saved" })
+                }
+
+                if (savedCount === 0) {
+                    res.json({ "message": "Transactions are uptodate" })
+                }
+
+            }
+        })
+    })
+})
+
+//get loan transactions
+router.get('/getloantransactions', async (req, res) => {
+
+    let account = req.query.accountNo
+
+    await loantransactions.getloansTransactions(account).then(data => {
+
+        res.json(data)
+
+    })
+
+
+})
 
 
 module.exports = router;
