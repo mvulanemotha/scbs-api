@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express();
 const morgan = require('morgan');
+const cors = require('cors')
 const chargies = require('./api/routes/charge')
 const jobs = require('./api/routes/jobs')
 const charge = require('./api/routes/charge')
@@ -19,6 +20,8 @@ const email = require('./api/routes/email')
 
 var bodyParser = require('body-parser')
 
+
+app.use(cors())
 app.use(bodyParser.json({ limit: '70mb' }))
 app.use(bodyParser.urlencoded({ limit: '70mb', extended: false }))
 
