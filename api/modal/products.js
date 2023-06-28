@@ -468,9 +468,9 @@ let getloansTransactions = async (accountNo) => {
         return await new Promise((resolve, reject) => {
 
             let query = "select * from loantrasactions where accountNo = ?"
-            
+
             clDb.query(query, [accountNo], (err, result) => {
-                
+
                 if (err) {
                     return reject(err)
                 }
@@ -512,5 +512,27 @@ let saveLoanTransctions = async (accountNo, transaction) => {
 
 }
 
+//get prepay details
+let prePayment = async (accountNo) => {
 
-module.exports = {getloansTransactions,  getLoanArearsDetails, saveLoanTransctions, loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
+    try {
+
+        return await axios({
+
+            method: "get",
+            //url: "https://api.live.irl.musoniservices.com/v1/loans/" + accountNo + "?associations=all", //process.env.url + "rescheduleloans",
+            url: "https://api.live.irl.musoniservices.com/v1/loans/" + accountNo + "?associations=all",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+        })
+
+    } catch (error) {
+        console.log(error.message)
+    }
+
+}
+
+
+
+module.exports = { prePayment, getloansTransactions, getLoanArearsDetails, saveLoanTransctions, loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
