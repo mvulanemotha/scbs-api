@@ -21,7 +21,7 @@ const email = require('./api/routes/email')
 var bodyParser = require('body-parser')
 
 
-app.use(cors())
+
 app.use(bodyParser.json({ limit: '70mb' }))
 app.use(bodyParser.urlencoded({ limit: '70mb', extended: false }))
 
@@ -41,6 +41,8 @@ app.use((req, res, next) => {
         next();
     }
 })
+
+app.use(cors())
 
 app.use(express.json())
 

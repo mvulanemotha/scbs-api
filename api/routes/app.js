@@ -14,7 +14,7 @@ var CryptoJS = require("crypto-js");
 
 //get all enquiries
 router.get('/all', async (req, res) => {
-
+    
     await app.getAllEnquries().then((data) => {
 
         res.status(200).json(data)
@@ -155,7 +155,7 @@ router.post('/saveclients', (req, res) => {
 
     //call function to save clients No and generate random codes
 
-
+    
     let data = req.body.data
 
     data.forEach(el => {
@@ -335,7 +335,7 @@ router.post('/appauth', (req, res) => {
 
 
 //change password
-router.post('/changepassword', authModal.ensureToken, (req, res) => {
+router.post('/changepassword', (req, res) => {
 
     //call funtion to change password
 
@@ -346,7 +346,7 @@ router.post('/changepassword', authModal.ensureToken, (req, res) => {
     username = username.toString(CryptoJS.enc.Utf8)
     newpass = newpass.toString(CryptoJS.enc.Utf8)
     oldpass = oldpass.toString(CryptoJS.enc.Utf8)
-
+    
 
     app.changePaasword(username, newpass, oldpass).then(data => {
 
@@ -676,7 +676,7 @@ router.get('/messages', authModal.ensureToken, (req, res) => {
 router.post('/savemessage', authModal.ensureToken, (req, res) => {
 
     app.saveReadMessages(req.body.messageID, req.body.clientID).then(dt => {
-
+        
         console.log(dt)
 
     })

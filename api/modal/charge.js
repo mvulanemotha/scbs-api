@@ -512,9 +512,9 @@ let getTransToPayCharge = () => {
 // create charge b4 we pay it
 
 let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => {
-    
+
     try {
-        
+
         var data = {
             "chargeId": chargeId,
             "locale": "en",
@@ -522,7 +522,7 @@ let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => 
             "dateFormat": "dd MMMM yyyy",
             "dueDate": date
         }
-        
+
         return await axios({
             method: "post",
             url: process.env.url + 'savingsaccounts/' + clientAccount + '/charges',
@@ -531,7 +531,7 @@ let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => 
             data: data,
             headers: headers.headers()
         })
-    
+
     } catch (error) {
         console.log(error)
     }
@@ -542,11 +542,11 @@ let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => 
 // mot yet proceesed
 // pay chargies
 let payCharge = async (accountNo, chargeid, amount, date) => {
-    
+
     //list all the 
-    
+
     let data = {
-        
+
         "dateFormat": "dd MMMM yyyy",
         "locale": "en",
         "amount": amount,
@@ -569,7 +569,7 @@ let payCharge = async (accountNo, chargeid, amount, date) => {
         }).catch((error) => {
             console.log(error)
         })
-    
+
     } catch (error) {
         console.log(error)
     }
@@ -1054,10 +1054,10 @@ let storeMulaAccounts = async (accountNo, interest, date) => {
     try {
 
         return await new Promise((resolve, reject) => {
-            
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,?" // where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
-            
-            db2.query(query, [accountNo, interest, date ], (err, result) => {
+
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? " //"where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+
+            db2.query(query, [accountNo, interest, date], (err, result) => {
 
                 if (err) {
                     return reject(err)

@@ -56,13 +56,13 @@ router.post('/requestsavingstatement', (req, res) => {
                 name: 'Customer App',
                 address: 'loansupport@scbs.co.sz' //process.env.frommail
             },
-            to: ['mkhululi.motha@scbs.co.sz'],
-            subject: 'Request of statement',
+            to: ['mkhululi.motha@scbs.co.sz , Nombulelo.Simelane@scbs.co.sz , nomfanelo.ziyane@scbs.co.sz'],
+            subject: 'Request of my savings account statement',
             text: 'Statement',
 
             html: "Kindly provide statement for the below customer.<br><br>"
                 + " " + name + " <br>"
-                + "Loan Account " + accountNo + "<br>"
+                + "Savings Account " + accountNo + "<br>"
                 + "Customer Email " + email + "<br><br>"
                 + "Regards"
 
@@ -125,7 +125,7 @@ router.post('/send', async (req, res) => {
                 name: 'Customer App',
                 address: 'loansupport@scbs.co.sz' //process.env.frommail
             },
-            to: ['mkhululi.motha@scbs.co.sz'],
+            to: ['mkhululi.motha@scbs.co.sz , nomfanelo.ziyane@scbs.co.sz, bongiwe.gina@scbs.co.sz '],
             subject: 'Request of statement',
             text: 'Loan Statement',
 

@@ -145,7 +145,7 @@ router.post('/runloanArears', (req, res) => {
                     let arrears = parseFloat(el["totalOverDue"])
 
                     let amount = (1 / 12) * (14.75 / 100) * (arrears)
-
+                    
                     console.log(el["accountNo"])
                     console.log(amount)
 

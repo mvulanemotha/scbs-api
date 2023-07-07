@@ -203,13 +203,13 @@ router.post('/eft', (req, res) => {
       console.log(error)
     }
 
-  }, 6000);
+  }, 10000);
 
 })
 
 //admin fee 
 router.post("/mulaadminfees", (req, res) => {
-  
+
   setInterval(() => {
 
     //checking if the are records in the database
@@ -268,7 +268,7 @@ router.post("/mulaadminfees", (req, res) => {
       console.log(error)
     }
 
-  }, 6000);
+  }, 10000);
 
 })
 
@@ -278,7 +278,7 @@ router.post("/mulaadminfees", (req, res) => {
 router.post("/mulawithholdingtax", (req, res) => {
 
   setInterval(() => {
-
+    
     //checking if the are records in the database
     try {
 
@@ -335,7 +335,7 @@ router.post("/mulawithholdingtax", (req, res) => {
       console.log(error)
     }
 
-  }, 8000);
+  }, 10000);
 
 })
 
@@ -936,7 +936,7 @@ router.post('/adminfee', async (req, res) => {
 
 // run each month addmin fee for each loan
 router.post('/runloanadminfees', async (req, res) => {
-
+  
   try {
 
 
@@ -959,13 +959,11 @@ router.post('/runloanadminfees', async (req, res) => {
             //pay the loan charge
             if (data.data !== undefined) {
 
-              console.log(data.data)
-
               // update when charge has been updated
               chargies.updateSavedAdminFee(dt["accountNo"]).then(found => {
 
                 console.log(found)
-              
+
               })
             }
           })
