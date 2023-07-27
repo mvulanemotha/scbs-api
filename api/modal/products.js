@@ -533,6 +533,25 @@ let prePayment = async (accountNo) => {
 
 }
 
+//get resheduled loans
+let resheduledLoanInfo = async () => {
+
+    try {
+
+        return await axios({
+            method: "get",
+            url: "https://api.live.irl.musoniservices.com/v1/rescheduleloans",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers()
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+}
 
 
-module.exports = { prePayment, getloansTransactions, getLoanArearsDetails, saveLoanTransctions, loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }
+
+module.exports = { resheduledLoanInfo, prePayment, getloansTransactions, getLoanArearsDetails, saveLoanTransctions, loanReshedule, updateresheduledLoan, getResheduleLoan, saveResheduleLoan, updateFPtransfer, getFtsavings, ftTosavingsAccount, updateMulaAccounts, getMulaAccount, saveMulaAccounts, runloanPenalty, updateLoanArrears, getLoanArearsDetails, loanArearsDetails, loans, chargies, loanClientDetails, savingsAccount }

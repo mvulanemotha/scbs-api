@@ -185,11 +185,11 @@ router.post('/forgotpass', (req, res) => {
 
                         // send email to clients with new password
 
-                        let emailsss = 'boymotsa@gmail.com'
-
-                        //app.sendResetEmail(dt.data["emailAddress"], password)
-
-                        app.sendResetEmail(emailsss, password)
+                        //let emailsss = 'boymotsa@gmail.com'
+                        
+                        app.sendResetEmail(dt.data["emailAddress"], password)
+                        
+                        //app.sendResetEmail(emailsss, password)
 
                         // update database on changed password
                         app.assingNewPassword(username, password)

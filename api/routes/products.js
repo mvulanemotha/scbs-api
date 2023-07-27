@@ -145,7 +145,7 @@ router.post('/runloanArears', (req, res) => {
                     let arrears = parseFloat(el["totalOverDue"])
 
                     let amount = (1 / 12) * (14.75 / 100) * (arrears)
-                    
+
                     console.log(el["accountNo"])
                     console.log(amount)
 
@@ -404,6 +404,52 @@ router.post('/reshedule', (req, res) => {
         })
     }, 5000);
 })
+
+//get resheduled loans
+router.get("/resheduled", async (req, res) => {
+
+    let loanId = req.query.loanId
+    
+    console.log(Number(loanId))
+    
+    //call function to get resheduled data
+    products.resheduledLoanInfo().then(data => {
+
+        let resheduledData = []
+
+        resheduledData = data.data["pageItems"]
+
+        resheduledData = resheduledData.filter(el => el["loanId"] === Number(loanId))
+
+        resheduledData = resheduledData.filter(el => el["loanStatus"]["restructured"] === true)
+
+        let rcopy = []
+
+
+
+        resheduledData.forEach(el => {
+
+            rcopy.push({
+                "rate": el["loanTermVariationsData"][0]["decimalValue"], "date": calculator.resheduleDate(el["timeline"]["submittedOnDate"][0],
+                    el["timeline"]["submittedOnDate"][1], el["timeline"]["submittedOnDate"][2])
+
+            })
+        })
+
+        rcopy.sort(function (a, b) {
+            var dateA = new Date(a.date), dateB = new Date(b.date)
+            return dateA - dateB
+        });
+
+        res.json(rcopy[rcopy.length - 1])
+
+    }).catch(err => {
+
+        console.log(err.message)
+
+    })
+})
+
 
 // get loan prepayment
 router.get("/prepayment", (req, res) => {

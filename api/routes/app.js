@@ -694,7 +694,7 @@ router.get('/oldmessages', authModal.ensureToken, (req, res) => {
 
 
 //create a small service that will  update 0 chargies from the database
-
+/*
 setInterval(() => {
 
     //get data from database that has zero charge
@@ -752,7 +752,7 @@ setInterval(() => {
     }
 
 }, 4000);
-
+*/
 
 
 

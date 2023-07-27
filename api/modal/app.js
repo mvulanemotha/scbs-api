@@ -836,7 +836,7 @@ let sendResetEmail = (email, newPassword) => {
 
             html: "Dear Valued customer: <br><br>"
                 + "Your new password is:" + newPassword
-                + "<br>We recommand that you change it upone login"
+                + "<br>We recommend that you change it upone login"
                 + "<br><br>Regards"
             ,
             replyTo: ""
