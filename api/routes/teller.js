@@ -28,10 +28,10 @@ router.get('/', (req, res) => {
 })
 
 // make deposit
-router.post("/deposit", (req, res) => {
+router.post("/deposit", async (req, res) => {
 
     let data = req.body.data
-    
+
     let username = req.body.username
     let password = req.body.password
 
@@ -40,7 +40,7 @@ router.post("/deposit", (req, res) => {
     let date = data.date
     let tellerusername = data.teller
 
-    teller.deposite(data.accountNo, calculator.myDate(data.date), data.amount, "ZULWINI", data.receiptNo , username , password).then(data => {
+    await teller.deposite(data.accountNo, calculator.myDate(data.date), data.amount, "ZULWINI", data.receiptNo, username, password).then(data => {
 
         if (data.data !== undefined) {
 
@@ -55,14 +55,14 @@ router.post("/deposit", (req, res) => {
 
             // get transaction so that an sms can be sent to a client
             transactions.transactions(accountNo, TransactionalID).then(data => {
-                
-                console.log(data)
+
+                //console.log(data)
                 if (data.data !== undefined) {
 
                     let balance = data.data
 
                     //
-                    res.json({ balance: balance["runningBalance"] , transid : TransactionalID })
+                    res.json({ balance: balance["runningBalance"], transid: TransactionalID })
 
                 }
 
@@ -70,24 +70,25 @@ router.post("/deposit", (req, res) => {
 
         } else {
 
-            //  res.json({ message: "FAILED TO SAVE" })
+            res.json({ message: "FAILED TO SAVE" })
 
         }
+    }).catch(err => {
+        console.log(err.message)
     })
-
 })
 
 
 //make a withdrawal
-router.post("/withdraw", (req, res) => {
+router.post("/withdraw", async (req, res) => {
 
     try {
 
         let data = req.body.data
         let username = req.body.username
         let password = req.body.password
-        
-        
+
+
         let accountNo = data.accountNo
 
         let date = data.date
@@ -95,7 +96,7 @@ router.post("/withdraw", (req, res) => {
 
 
 
-        teller.withdrawalTransaction(data.accountNo, data.amount, calculator.myDate(data.date), data.receiptNo ,username , password).then(data => {
+        await teller.withdrawalTransaction(data.accountNo, data.amount, calculator.myDate(data.date), data.receiptNo, username, password).then(data => {
 
 
             if (data.data !== undefined) {
@@ -128,14 +129,14 @@ router.post("/withdraw", (req, res) => {
 
             } else {
 
-                // res.json({ message: "FAILED TO SAVE" })
+                res.json({ message: "FAILED TO SAVE" })
 
             }
 
 
 
         }).catch((error) => {
-            console.log(error)
+            console.log(error.message)
         })
     } catch (err) {
         console.log(err)
@@ -165,17 +166,29 @@ router.post('/transactions', (req, res) => {
 
 // get teller balance from Musoni
 
-router.get('/balance', (req, res) => {
+router.get('/balance', async (req, res) => {
 
-
-    //let username = req.query.username // no need of a username
     let transId = req.query.transID
     let cashierID = req.query.cashierID
     let tellerID = req.query.tellerID
 
 
+    console.log(tellerID)
+    console.log(cashierID)
+
+    /*
+    //let username = req.query.username // no need of a username
+    let transId = req.query.transID
+    let cashierID = req.query.cashierID
+    let tellerID = req.query.tellerID
+
+    console.log(tellerID)
+    console.log(cashierID)
+
     // get teller transaction to get the balance
-    teller.tellerTransactions(tellerID, cashierID).then((data) => {
+    await teller.tellerTransactions(tellerID, cashierID).then((data) => {
+
+        console.log(data)
 
         let dataTrans = data.data
 
@@ -191,36 +204,49 @@ router.get('/balance', (req, res) => {
         res.json({ balance: dataTran[0]["runningBalance"] })
 
     })
+
+    */
 })
 
-router.get('/balancesummary', (req, res) => {
+router.get('/balancesummary', async (req, res) => {
 
     let cashierID = req.query.cashierID
     let tellerID = req.query.tellerID
 
-    console.log(cashierID)
-    console.log(tellerID)
 
-    teller.tellerSummary(tellerID, cashierID).then((data) => {
+    console.log(cashierID + "Cashier")
+    console.log(tellerID + "Teller")
 
+    /*
+    await teller.tellerSummary(tellerID, cashierID).then((data) => {
+
+        console.log(data)
+
+        
         if (data.data !== undefined) {
             res.json(data.data)
         }
+        
+    
+    }).catch(errr => {
+
+        console.log(errr.message)
 
     })
+    */
 
 })
 
 //  get all tellers 
 router.get('/tellers', (req, res) => {
 
-    
+
     //get tellers then get cashiers
     teller.getTellers().then(data => {
-        
+
         //get data lenght
         let foundTellers = data.data
-        
+
         res.json(foundTellers)
     
     }).catch((error) => {
@@ -235,6 +261,16 @@ router.get('/tellerbalances', async (req, res) => {
     await denoms.sumTodayBalances(req.query.date).then((data) => {
 
         res.json(data)
+
+    })
+})
+
+
+router.post('/settleTeller', async (req, res) => {
+
+    await teller.settleTeller(3, 18, 10500).then(data => {
+
+        console.log(data)
 
     })
 

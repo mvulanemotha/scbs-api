@@ -21,7 +21,7 @@ let authUser = async (username, password) => {
             withCredentials: true,
             crossdomain: true,
             headers: headers.headers()
-
+        
         })
 
     } catch (error) {

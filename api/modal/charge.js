@@ -511,7 +511,7 @@ let getTransToPayCharge = () => {
 
 // create charge b4 we pay it
 
-let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => {
+let createClientCharge = async (clientAccount, amount, chargeId, date) => {
 
     try {
 
@@ -522,7 +522,7 @@ let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => 
             "dateFormat": "dd MMMM yyyy",
             "dueDate": date
         }
-
+        
         return await axios({
             method: "post",
             url: process.env.url + 'savingsaccounts/' + clientAccount + '/charges',
@@ -542,22 +542,22 @@ let createClientCharge = async (clientAccount, amount, chargeId = 306, date) => 
 // mot yet proceesed
 // pay chargies
 let payCharge = async (accountNo, chargeid, amount, date) => {
-
+    
     //list all the 
-
+    
     let data = {
-
+        
         "dateFormat": "dd MMMM yyyy",
         "locale": "en",
         "amount": amount,
         "dueDate": "" + date + ""
     }
-
-
+    
+    
     try {
-
+        
         return await axios({
-
+            
             method: "post",
             //url: process.env.url + 'savingsaccounts/'+ accountNo +'/transactions/'+chargeid,
             url: process.env.url + 'savingsaccounts/' + accountNo + '/charges/' + chargeid + '?command=paycharge',
@@ -565,11 +565,11 @@ let payCharge = async (accountNo, chargeid, amount, date) => {
             crossdomain: true,
             data: data,
             headers: headers.headers()
-
+        
         }).catch((error) => {
             console.log(error)
         })
-
+    
     } catch (error) {
         console.log(error)
     }
@@ -1055,9 +1055,9 @@ let storeMulaAccounts = async (accountNo, interest, date) => {
 
         return await new Promise((resolve, reject) => {
 
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? " //"where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
 
-            db2.query(query, [accountNo, interest, date], (err, result) => {
+            db2.query(query, [accountNo, interest, date , accountNo], (err, result) => {
 
                 if (err) {
                     return reject(err)

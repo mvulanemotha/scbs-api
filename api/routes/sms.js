@@ -2,29 +2,43 @@ const express = require("express");
 const router = express.Router();
 const sms = require('../modal/sms')
 const clients = require('../modal/clients')
+const chargies = require('../modal/charge')
+const calculator = require('../modal/calculator')
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 
     //when acc
-
-    /*
     try {
-        
+
         let number = req.body.phone
         let message = req.body.message
-        
-        
-        sms.sendMessage(number, message, res).then((data) => {
+        let account = req.body.account
+        let date = req.body.date
+
+        await sms.sendMessage(number, message, res).then(async (data) => {
+
+            // sms charge
+            // deposit charge and withdrawal
+            await chargies.createClientCharge(account, 0.95, 13, calculator.myDate(date)).then((data1) => {
+
+                if (data1.data !== undefined) {
+
+                    let resourceid = data1.data["resourceId"]
+
+                    chargies.payCharge(account, resourceid, 0.95, calculator.myDate(date)).then((payed) => {
+
+                        //console.log(payed)
+                    
+                    })
+                }
+            })
             
             res.json({ message: "sent" })
-        
+
         })
     } catch (error) {
         console.log(error)
     }
-    
-    */
-
 
 })
 
@@ -40,12 +54,10 @@ router.post('/saveclient', (req, res) => {
     data.forEach(el => {
 
         //console.log(el)
-
-        
         // save data in database
         clients.saveClient(el["contact"]).then(dt => {
             console.log(dt)
-        }) 
+        })
     });
 })
 
@@ -54,7 +66,7 @@ router.post('/saveclient', (req, res) => {
 router.post('/sendmessage', (req, res) => {
 
     let message = `Dear Valued Member, View your monthly statement via the STATUS Mobile APP. Download APP today:  https://play.google.com/store/apps/details?id=io.scbs.buildingsociety`
-    
+
     if (message === "") {
         console.log("No message available")
         return;

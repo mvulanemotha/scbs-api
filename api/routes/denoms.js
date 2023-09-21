@@ -3,9 +3,8 @@ const router = express.Router();
 const denoms = require('../modal/demons')
 
 
-
 // save denomns for a teller
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
 
     let data = req.body
 
@@ -13,7 +12,9 @@ router.post('/', (req, res) => {
 
     try {
 
-        denoms.saveDenoms(data.user, demons).then((data) => {
+        await denoms.saveDenoms(data.user, demons).then((data) => {
+
+            console.log(data)
 
         })
 
@@ -33,6 +34,8 @@ router.post('/deduct', (req, res) => {
 
     let data = req.body
     let denoms1 = data.denoms
+
+    console.log(data)
 
     try {
 
@@ -55,9 +58,6 @@ router.post('/deduct', (req, res) => {
 
 //save a teller username
 router.post('/save', (req, res) => {
-
-
-    console.log(req.body)
 
     denoms.inserTellerDenoms(req.body.username, req.body.date).then((data) => {
 
@@ -93,8 +93,6 @@ router.get('/denoms', async (req, res) => {
 
 //teller demons
 router.get('/telleradmindenoms', (req, res) => {
-
-    console.log(req.query.date)
 
     denoms.getAllTellersDenomns(req.query.date).then(data => {
         //console.log(data)

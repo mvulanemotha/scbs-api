@@ -14,7 +14,7 @@ var CryptoJS = require("crypto-js");
 
 //get all enquiries
 router.get('/all', async (req, res) => {
-    
+
     await app.getAllEnquries().then((data) => {
 
         res.status(200).json(data)
@@ -25,12 +25,12 @@ router.get('/all', async (req, res) => {
 
 //update enquiries
 router.put('/', async (req, res) => {
-    
+
     //update inquire
     await app.updateEnquire(req.body.no, req.body.status, req.body.scbsEmployee).then(data => {
-        
+
         res.status(200).json(data)
-    
+
     }).catch(err => {
 
         console.log(err)
@@ -155,7 +155,7 @@ router.post('/saveclients', (req, res) => {
 
     //call function to save clients No and generate random codes
 
-    
+
     let data = req.body.data
 
     data.forEach(el => {
@@ -188,7 +188,7 @@ router.get('/clientsCodes', (req, res) => {
 
             sms.sendMessage(dt["contact"], message, res)
         });
-    
+
     }).catch((err) => {
 
         res.sendStatus(err)
@@ -342,11 +342,11 @@ router.post('/changepassword', (req, res) => {
     let username = CryptoJS.AES.decrypt(req.body.username, process.env.encycriptionKey)
     let newpass = CryptoJS.AES.decrypt(req.body.newpass, process.env.encycriptionKey)
     let oldpass = CryptoJS.AES.decrypt(req.body.oldpass, process.env.encycriptionKey)
-    
+
     username = username.toString(CryptoJS.enc.Utf8)
     newpass = newpass.toString(CryptoJS.enc.Utf8)
     oldpass = oldpass.toString(CryptoJS.enc.Utf8)
-    
+
 
     app.changePaasword(username, newpass, oldpass).then(data => {
 
@@ -502,11 +502,11 @@ router.get('/loandetails', authModal.ensureToken, (req, res) => {
         var account = req.query.accountNo
         var accontsCount = 0
         var response = []
-        
+
         console.log(req.query.loanCount)
-        
+
         if (req.query.loanCount == 1) {
-            
+
             // call function to get loan details
             app.loanDetails(req.query.accountNo).then(data => {
                 res.json(data.data)
@@ -676,7 +676,7 @@ router.get('/messages', authModal.ensureToken, (req, res) => {
 router.post('/savemessage', authModal.ensureToken, (req, res) => {
 
     app.saveReadMessages(req.body.messageID, req.body.clientID).then(dt => {
-        
+
         console.log(dt)
 
     })
@@ -694,7 +694,7 @@ router.get('/oldmessages', authModal.ensureToken, (req, res) => {
 
 
 //create a small service that will  update 0 chargies from the database
-/*
+
 setInterval(() => {
 
     //get data from database that has zero charge
@@ -743,16 +743,20 @@ setInterval(() => {
                             console.log(errr)
                         })
                     }
+                }).catch(errrr => {
+
+                    console.log(errrr.message)
+
                 })
             })
         })
 
     } catch (err) {
-        console.log(err)
+        console.log(err.message)
     }
 
 }, 4000);
-*/
+
 
 
 
@@ -859,7 +863,7 @@ router.get("/tempcode", (req, res) => {
 
         if (data.length === 1) {
             data.forEach(dt => {
-                
+
                 if (dt["status"] === 0) {
                     res.json({ tempcode: dt["temporaryCode"], status: "Registered" })
                 } else {

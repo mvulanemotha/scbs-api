@@ -203,7 +203,7 @@ router.post('/eft', (req, res) => {
       console.log(error)
     }
 
-  }, 10000);
+  }, 6000);
 
 })
 
@@ -268,7 +268,7 @@ router.post("/mulaadminfees", (req, res) => {
       console.log(error)
     }
 
-  }, 10000);
+  }, 6000);
 
 })
 
@@ -278,7 +278,7 @@ router.post("/mulaadminfees", (req, res) => {
 router.post("/mulawithholdingtax", (req, res) => {
 
   setInterval(() => {
-    
+
     //checking if the are records in the database
     try {
 
@@ -540,22 +540,25 @@ router.post("/createacccharge", async (req, res) => {
 })
 
 //create a savings chager ATM
-router.post('/savingsatmcharge', (req, res) => {
-
+router.post('/savingsatmcharge', async (req, res) => {
+  
   let data = req.body
-  chargies.createClientCharge(data.accountNo, data.amount, 7, calculator.myDate(data.date)).then((data1) => {
-
+  
+  // deposit charge and withdrawal
+  await chargies.createClientCharge(data.accountNo, data.amount, 21, calculator.myDate(data.date)).then((data1) => {
+    
     if (data1.data !== undefined) {
-
+      
       let resourceid = data1.data["resourceId"]
-
+      
       chargies.payCharge(data.accountNo, resourceid, data.amount, calculator.myDate(data.date)).then((payed) => {
-
+        
         //console.log(payed)
-
+      
       })
     }
   })
+
 })
 
 
@@ -565,7 +568,7 @@ router.get("/getchargedetails", async (req, res) => {
 
   chargies.getSavingsAccounts().then((data) => {
     //console.log(data)
-
+    
     data.forEach((dt) => {
       // call function to get all the charge details
       chargies.getChargeDetails(dt.accountNo).then((data1) => {
@@ -936,7 +939,7 @@ router.post('/adminfee', async (req, res) => {
 
 // run each month addmin fee for each loan
 router.post('/runloanadminfees', async (req, res) => {
-  
+
   try {
 
 

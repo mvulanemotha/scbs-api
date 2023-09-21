@@ -3,16 +3,17 @@ const dotenv = require('dotenv');
 const { default: axios } = require('axios');
 dotenv.config();
 const db = require("../../db/charge");
+const calculator = require("../modal/calculator")
 
 
 //make a deposite
 let deposite = async (accountNo, date, amount, bank, receipt, username, password) => {
-    
+
     try {
 
-        
+
         let data = {
-            
+
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
             "transactionDate": date,
@@ -20,18 +21,18 @@ let deposite = async (accountNo, date, amount, bank, receipt, username, password
             "paymentTypeId": 177,
             "accountNumber": accountNo,
             "receiptNumber": receipt,
-        
+
         }
-        
+
         return await axios({
-            
+
             method: "post",
             url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=deposit",
             withCredentials: true,
             crossdomain: true,
             headers: headers.tellerHeaders(username, password),
             data: data
-        
+
         })
 
     } catch (error) {
@@ -43,11 +44,11 @@ let deposite = async (accountNo, date, amount, bank, receipt, username, password
 //make a withdrawal
 
 let withdrawalTransaction = async (accountNo, amount, date, receipt, username, password) => {
-    
+
     try {
-        
+
         let data = {
-            
+
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
             "transactionDate": date,
@@ -60,7 +61,7 @@ let withdrawalTransaction = async (accountNo, amount, date, receipt, username, p
             //"bankNumber": "ban123"
 
         }
-        
+
 
         return await axios({
 
@@ -71,7 +72,7 @@ let withdrawalTransaction = async (accountNo, amount, date, receipt, username, p
             headers: headers.tellerHeaders(username, password),
             data: data
         })
-    
+
     } catch (error) {
         console.log(error)
     }
@@ -168,6 +169,8 @@ let tellerSummary = async (tellerID, cashierId) => {
 
     try {
 
+        console.log(cashierId + " " + "cashier")
+        console.log(tellerID + " " + "teller")
 
         return await axios({
 
@@ -176,6 +179,7 @@ let tellerSummary = async (tellerID, cashierId) => {
             withCredentials: true,
             crossdomain: true,
             headers: headers.headers()
+
         }).catch((err) => {
             console.log(err)
         })
@@ -226,9 +230,46 @@ let getCashiers = async (tellerID) => {
     } catch (error) {
         console.log(error)
     }
-
 }
 
+//settle Teller
+/*
+let settleTeller = async (tellerID, cashierID, settleAmount) => {
 
+    try {
+
+        var todayDate = new Date().toISOString().split('T')[0]
+
+        console.log(calculator.myDate(todayDate))
+
+        let data = {
+
+            "currencyCode":"SZL",
+            "txnAmount": settleAmount,
+            "txnNote": "cash settlement",
+            "locale": "en",
+            "dateFormat": "dd MMMM yyyy",
+            "txnDate": calculator.myDate(todayDate)
+
+        }
+
+        return await axios({
+
+            method: "post",
+            url: process.env.url + "tellers/" + tellerID + "/cashiers/" + cashierID + "/settle",
+            withCredentials: true,
+            crossdomain: true,
+            headers: headers.headers(),
+            data: data
+
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
+
+
+}
+*/
 
 module.exports = { deposite, withdrawalTransaction, tellerTransactions, saveWithdrawalTransaction, tellerTransDatabase, tellerSummary, getTellers, getCashiers }

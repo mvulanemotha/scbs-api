@@ -5,8 +5,10 @@ dotenv.config();
 
 let tellerHeaders = (username, password) => {
   
-  let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO'
-  
+  //let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO'
+  //let apiKey = 'G1ApOPzYok3CnSupBeBMfRMXEFxHVMT5DaFc5854'
+  // demo api key
+  let apiKey = process.env.key;
   let musonCredentials = username + ':' + password
   
   let buff = new Buffer.from(musonCredentials)
@@ -27,9 +29,6 @@ let tellerHeaders = (username, password) => {
     'keep-alive': true
     //'Accept-Encoding' : 'gzip, deflate, br'
   }
-  
-  /*uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO
-  Basic U0NCUzAwMTA6TXZ1bGFuZTJAQA==*/
 
 }
 
@@ -41,7 +40,8 @@ User1 = 'Status Capital API'
 Password1 = 'Status12345'
   */
   
-  let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO' //process.env.key;
+  //let apiKey = 'uUUnYBrEJ48mp2JoM8Jni7yIf8JDRP1N7mZvUTmO' //process.env.key;
+  let apiKey = process.env.key;
   let username = 'Status Capital API' //process.env.User
   let password = 'Status12345' //process.env.password
    
