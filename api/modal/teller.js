@@ -168,10 +168,7 @@ let tellerTransDatabase = async (teller, date) => {
 let tellerSummary = async (tellerID, cashierId) => {
 
     try {
-
-        console.log(cashierId + " " + "cashier")
-        console.log(tellerID + " " + "teller")
-
+        
         return await axios({
 
             method: "get",
