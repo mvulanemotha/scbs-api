@@ -562,9 +562,9 @@ let loanRepayment = async (accountNo, amount, fromAccount, transferDate) => {
 
 // make a deposit 
 let makeDeposit = async (depositDate, amount, accountNo, fromAccount) => {
-    
+
     try {
-        
+
         let data = {
             "locale": "en",
             "dateFormat": "dd MMMM yyyy",
@@ -577,18 +577,18 @@ let makeDeposit = async (depositDate, amount, accountNo, fromAccount) => {
             "receiptNumber": "From " + fromAccount,
             "bankNumber": "scbs"
         }
-        
+
         return await axios({
-            
+
             method: "post",
             url: process.env.url + "savingsaccounts/" + accountNo + "/transactions?command=deposit",
             withCredentials: true,
             crossdomain: true,
             headers: headers.headers(),
             data: data
-        
+
         })
-    
+
     } catch (error) {
         console.log(error)
     }
@@ -600,7 +600,6 @@ let makeWithdrawal = async (withrawalDate, amount, accountNo, toAccount) => {
 
     try {
 
-        let receipt
 
         let data = {
             "locale": "en",
@@ -756,21 +755,23 @@ let alertIT = (contact, email) => {
 
     var transporter = nodemailer.createTransport({
 
-        service: "Outlook365",
-        host: 'smtp-mail.outlook.com',                  // hostname
+        //service: "Outlook365",
+        host: 'smtp.googlemail.com',                  // hostname
         //service: 'outlook', 
-        port: 587,
+        port: 465,
         secure: true,
-        requireTLS: true,
+        //requireTLS: true,
         auth: {
-            user: process.env.usermail,
-            pass: process.env.passmail
-        },
-        tls:
-        {
-            "ciphers": 'SSLv3',
-            rejectUnauthorized: false
-        }
+            user: "statuscapitalit@gmail.com",
+            pass: 'guxb tdld yzot kict'
+            //user: 'mkhululi.motha@scbs.co.sz',
+            //pass: 'Qus29753'
+        }/*,
+            tls:
+            {
+                "ciphers": 'SSLv3',
+                rejectUnauthorized: false
+            }*/
     })
 
     transporter.sendMail({
@@ -807,21 +808,23 @@ let sendResetEmail = (email, newPassword) => {
 
         var transporter = nodemailer.createTransport({
 
-            service: "Outlook365",
-            host: 'smtp-mail.outlook.com',                  // hostname
+            //service: "Outlook365",
+            host: 'smtp.googlemail.com',                  // hostname
             //service: 'outlook', 
-            port: 587,
+            port: 465,
             secure: true,
-            requireTLS: true,
+            //requireTLS: true,
             auth: {
-                user: process.env.usermail,
-                pass: process.env.passmail
-            },
+                user: "statuscapitalit@gmail.com",
+                pass: 'guxb tdld yzot kict'
+                //user: 'mkhululi.motha@scbs.co.sz',
+                //pass: 'Qus29753'
+            }/*,
             tls:
             {
                 "ciphers": 'SSLv3',
                 rejectUnauthorized: false
-            }
+            }*/
         })
 
         transporter.sendMail({
@@ -1056,7 +1059,7 @@ let getAllEnquries = async () => {
 
 //update enquire
 let updateEnquire = async (no, status, hangler) => {
-    
+
     console.log(no)
 
     try {
@@ -1066,7 +1069,7 @@ let updateEnquire = async (no, status, hangler) => {
             let query = "update inquire set status = ? , hangler = ?  where No = ? limit 1"
 
             db.query(query, [status, hangler, no], (err, result) => {
-                
+
                 if (err) {
                     return reject(err)
                 }

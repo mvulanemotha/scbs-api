@@ -206,14 +206,14 @@ let saveMulaAccounts = async (accountNo, amount) => {
 
         return new Promise((resolve, reject) => {
 
-            let query = "insert into mulaaccounts (accountNo , amount) select ?,? "//where not exists (select accountNo from mulaaccounts where accountNo = ?) limit 1"
+            let query = "insert into mulaaccounts (accountNo , amount) select ?,? where not exists (select accountNo from mulaaccounts where accountNo = ?) limit 1"
 
-            db.query(query, [accountNo, amount], (err, result) => {
+            db.query(query, [accountNo, amount, accountNo], (err, result) => {
 
                 if (err) {
                     return reject(err)
                 }
-
+                
                 return resolve(result)
             })
         })

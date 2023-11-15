@@ -30,23 +30,25 @@ router.post('/requestsavingstatement', (req, res) => {
         let name = req.body.name
         let accountNo = req.body.account
 
-        var transporter = nodemailer.createTransport({
-
-            service: "Outlook365",
-            host: 'smtp-mail.outlook.com',                  // hostname
+           var transporter = nodemailer.createTransport({
+            
+            //service: "Outlook365",
+            host: 'smtp.googlemail.com',                  // hostname
             //service: 'outlook', 
-            port: 587,
+            port: 465,
             secure: true,
-            requireTLS: true,
+            //requireTLS: true,
             auth: {
-                user: process.env.usermail,
-                pass: process.env.passmail
-            },
+                user: "statuscapitalit@gmail.com",
+                pass: 'guxb tdld yzot kict'
+                //user: 'mkhululi.motha@scbs.co.sz',
+                //pass: 'Qus29753'
+            }/*,
             tls:
             {
                 "ciphers": 'SSLv3',
                 rejectUnauthorized: false
-            }
+            }*/
         })
 
 
@@ -101,30 +103,29 @@ router.post('/send', async (req, res) => {
 
         var transporter = nodemailer.createTransport({
 
-            service: "Outlook365",
-            host: 'smtp-mail.outlook.com',                  // hostname
+            //service: "Outlook365",
+            host: 'smtp.googlemail.com',                  // hostname
             //service: 'outlook', 
-            port: 587,
+            port: 465,
             secure: true,
-            requireTLS: true,
+            //requireTLS: true,
             auth: {
-                user: process.env.usermail,
-                pass: process.env.passmail
-            },
+                user: "statuscapitalit@gmail.com",
+                pass: 'guxb tdld yzot kict'
+                //user: 'mkhululi.motha@scbs.co.sz',
+                //pass: 'Qus29753'
+            }/*,
             tls:
             {
                 "ciphers": 'SSLv3',
                 rejectUnauthorized: false
-            }
+            }*/
         })
 
 
         transporter.sendMail({
 
-            from: {
-                name: 'Customer App',
-                address: 'loansupport@scbs.co.sz' //process.env.frommail
-            },
+            from: "statuscapitalit@gmail.com",
             to: ['mkhululi.motha@scbs.co.sz , nomfanelo.ziyane@scbs.co.sz, bongiwe.gina@scbs.co.sz '],
             subject: 'Request of statement',
             text: 'Loan Statement',
@@ -139,7 +140,7 @@ router.post('/send', async (req, res) => {
             replyTo: ""
         }, (error, result) => {
 
-            console.log(result)
+            console.log(error)
 
             if (error) {
                 //res.json(error);
@@ -186,9 +187,9 @@ router.post('/forgotpass', (req, res) => {
                         // send email to clients with new password
 
                         //let emailsss = 'boymotsa@gmail.com'
-                        
+
                         app.sendResetEmail(dt.data["emailAddress"], password)
-                        
+
                         //app.sendResetEmail(emailsss, password)
 
                         // update database on changed password
@@ -239,24 +240,25 @@ router.post('/appinfo', (req, res) => {
                 tempcode = dt["temporaryCode"]
 
             })
-
             var transporter = nodemailer.createTransport({
 
-                service: "Outlook365",
-                host: 'smtp-mail.outlook.com',                  // hostname
+                //service: "Outlook365",
+                host: 'smtp.googlemail.com',                  // hostname
                 //service: 'outlook', 
-                port: 587,
+                port: 465,
                 secure: true,
-                requireTLS: true,
+                //requireTLS: true,
                 auth: {
-                    user: process.env.usermail,
-                    pass: process.env.passmail
-                },
-                tls:
-                {
-                    "ciphers": 'SSLv3',
-                    rejectUnauthorized: false
-                }
+                    user: "statuscapitalit@gmail.com",
+                    pass: 'guxb tdld yzot kict'
+                    //user: 'mkhululi.motha@scbs.co.sz',
+                    //pass: 'Qus29753'
+                }/*,
+            tls:
+            {
+                "ciphers": 'SSLv3',
+                rejectUnauthorized: false
+            }*/
             })
 
             transporter.sendMail({

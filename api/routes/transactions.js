@@ -114,7 +114,7 @@ router.post('/storeloantransactions', (req, res) => {
 router.get('/getloantransactions', async (req, res) => {
 
     let account = req.query.accountNo
-
+    
     await loantransactions.getloansTransactions(account).then(data => {
 
         res.json(data)

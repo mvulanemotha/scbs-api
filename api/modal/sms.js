@@ -22,7 +22,7 @@ let config = {
 
 // function to send sms
 let sendMessage = async (phoneNumber, message) => {
-
+   
    try {
 
       return await axios.get('https://rest.smsportal.com/authentication', config)

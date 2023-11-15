@@ -151,7 +151,7 @@ router.post('/eft', (req, res) => {
     try {
 
       chargies.geteft().then(data => {
-
+        
         if (data.length === 0) {
           console.log("ALL EFT FEES HAVE BEEN RUN")
           return;
@@ -159,7 +159,7 @@ router.post('/eft', (req, res) => {
 
 
         data.forEach(el => {
-
+          
           var amount = 10
 
           console.log(amount)
@@ -168,9 +168,9 @@ router.post('/eft', (req, res) => {
           chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 10, calculator.myDate(el["date"])).then(dt => {
 
             let data = dt.data
-
+            
             var resourceID = data["resourceId"]
-
+            
             // will be used to pay the charge
             chargies.payCharge(el["accountNo"], resourceID, amount.toFixed(2), calculator.myDate(el["date"])).then((newData) => {
 
@@ -215,7 +215,7 @@ router.post("/mulaadminfees", (req, res) => {
     //checking if the are records in the database
     try {
 
-      chargies.getadminfee().then(data => {
+      chargies.getadminfee().then(async data => {
 
         if (data.length === 0) {
           console.log("ALL ADMIN FEES RUN")
@@ -223,28 +223,29 @@ router.post("/mulaadminfees", (req, res) => {
         }
 
 
-        data.forEach(el => {
+        data.forEach(async el => {
 
           var amount = 18.00
 
           console.log(amount)
           console.log(el["accountNo"])
 
-          chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 12, calculator.myDate(el["date"])).then(dt => {
+          await chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 12, calculator.myDate(el["date"])).then(async dt => {
 
             let data = dt.data
 
             var resourceID = data["resourceId"]
 
             // will be used to pay the charge
-            chargies.payCharge(el["accountNo"], resourceID, amount.toFixed(2), calculator.myDate(el["date"])).then((newData) => {
+            await chargies.payCharge(el["accountNo"], resourceID, amount.toFixed(2), calculator.myDate(el["date"])).then(async (newData) => {
 
               //console.log(newData)   
 
               // call funtion to update database
-              chargies.updategetadminfee(el["accountNo"]).then(dat => {
+              await chargies.updategetadminfee(el["accountNo"]).then(dat => {
 
                 //paycharge function
+                //console.log(dat)
                 console.log("Admin fees paid")
 
               }).catch(err => {
@@ -335,7 +336,7 @@ router.post("/mulawithholdingtax", (req, res) => {
       console.log(error)
     }
 
-  }, 10000);
+  }, 8000);
 
 })
 
@@ -541,20 +542,20 @@ router.post("/createacccharge", async (req, res) => {
 
 //create a savings chager ATM
 router.post('/savingsatmcharge', async (req, res) => {
-  
+
   let data = req.body
-  
+
   // deposit charge and withdrawal
   await chargies.createClientCharge(data.accountNo, data.amount, 21, calculator.myDate(data.date)).then((data1) => {
-    
+
     if (data1.data !== undefined) {
-      
+
       let resourceid = data1.data["resourceId"]
-      
+
       chargies.payCharge(data.accountNo, resourceid, data.amount, calculator.myDate(data.date)).then((payed) => {
-        
+
         //console.log(payed)
-      
+
       })
     }
   })
@@ -568,7 +569,7 @@ router.get("/getchargedetails", async (req, res) => {
 
   chargies.getSavingsAccounts().then((data) => {
     //console.log(data)
-    
+
     data.forEach((dt) => {
       // call function to get all the charge details
       chargies.getChargeDetails(dt.accountNo).then((data1) => {

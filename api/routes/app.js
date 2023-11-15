@@ -503,8 +503,6 @@ router.get('/loandetails', authModal.ensureToken, (req, res) => {
         var accontsCount = 0
         var response = []
 
-        console.log(req.query.loanCount)
-
         if (req.query.loanCount == 1) {
 
             // call function to get loan details
@@ -732,19 +730,19 @@ setInterval(() => {
                         //call function to update the database
 
                         app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
-
+                            
                             if (parseInt(tranformed["affectedRows"]) === 1) {
                                 console.log("Done")
                             } else {
                                 console.log("failed")
                             }
-
+                        
                         }).catch(errr => {
                             console.log(errr)
                         })
                     }
                 }).catch(errrr => {
-
+                    
                     console.log(errrr.message)
 
                 })
