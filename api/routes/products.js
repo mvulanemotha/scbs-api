@@ -183,7 +183,7 @@ router.post('/runloanArears', (req, res) => {
 router.post('/emptyMulaAccounts', (req, res) => {
     
     try {
-
+        
         var todayDate = new Date().toISOString().split('T')[0]
 
         //call function to make a withdrawal

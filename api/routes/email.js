@@ -30,8 +30,8 @@ router.post('/requestsavingstatement', (req, res) => {
         let name = req.body.name
         let accountNo = req.body.account
 
-           var transporter = nodemailer.createTransport({
-            
+        var transporter = nodemailer.createTransport({
+
             //service: "Outlook365",
             host: 'smtp.googlemail.com',                  // hostname
             //service: 'outlook', 
@@ -58,7 +58,7 @@ router.post('/requestsavingstatement', (req, res) => {
                 name: 'Customer App',
                 address: 'loansupport@scbs.co.sz' //process.env.frommail
             },
-            to: ['mkhululi.motha@scbs.co.sz , Nombulelo.Simelane@scbs.co.sz , nomfanelo.ziyane@scbs.co.sz'],
+            to: ['mkhululi.motha@scbs.co.sz , Nombulelo.Simelane@scbs.co.sz , Lomave.Dlamini@scbs.co.sz'],
             subject: 'Request of my savings account statement',
             text: 'Statement',
 

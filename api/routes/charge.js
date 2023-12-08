@@ -160,7 +160,7 @@ router.post('/eft', (req, res) => {
 
         data.forEach(el => {
           
-          var amount = 10
+          var amount = 60
 
           console.log(amount)
           console.log(el["accountNo"])
@@ -277,7 +277,7 @@ router.post("/mulaadminfees", (req, res) => {
 
 //lets run withholding tax
 router.post("/mulawithholdingtax", (req, res) => {
-
+  
   setInterval(() => {
 
     //checking if the are records in the database
