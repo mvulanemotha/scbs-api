@@ -213,7 +213,7 @@ let saveMulaAccounts = async (accountNo, amount) => {
                 if (err) {
                     return reject(err)
                 }
-                
+
                 return resolve(result)
             })
         })

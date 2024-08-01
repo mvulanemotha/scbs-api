@@ -449,7 +449,6 @@ let getSavingsAccounts = () => {
     } catch (error) {
         console.log(error);
     }
-
 }
 
 
@@ -471,8 +470,6 @@ let saveClientsTransactions = (transID, accountNo, amount, transDate) => {
             })
 
         })
-
-
     } catch (error) {
         console.log(error)
     }
@@ -702,7 +699,7 @@ let saveLoanClientCharge = async (accountNo, chargeid, amount, date) => {
         })
 
     } catch (err) {
-        console.log(err)
+        console.log(err.message)
     }
 
 }
@@ -1055,9 +1052,9 @@ let storeMulaAccounts = async (accountNo, interest, date) => {
 
         return await new Promise((resolve, reject) => {
 
-            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
+            let query = "insert into savingsmulaacccharge(accountNo, interest , date) select ?,?,? "// where not exists ( select accountNo from savingsmulaacccharge where accountNo = ? )"  //improve later
 
-            db2.query(query, [accountNo, interest, date, accountNo], (err, result) => {
+            db2.query(query, [accountNo, interest, date], (err, result) => {
 
                 if (err) {
                     return reject(err)

@@ -701,52 +701,53 @@ setInterval(() => {
 
         app.zeroCharge().then(data => {
 
-            //console.log(data)
+            if (data !== undefined) {
 
-            data.forEach((dt) => {
+                data.forEach((dt) => {
 
-                app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
+                    app.savingsTrans(dt["accountNo"], dt["tran_id"]).then(res => {
 
 
-                    if (res["status"] === 200) {
+                        if (res["status"] === 200) {
 
-                        let transType = "Withholding Tax"
+                            let transType = "Withholding Tax"
 
-                        let amountGot = res.data["amount"]
+                            let amountGot = res.data["amount"]
 
-                        if (res.data["amount"] === 0.95) {
-                            transType = "sms"
-                        }
-
-                        if (res.data["amount"] === 18) {
-                            transType = "Admin Fees"
-                        }
-
-                        if (res.data["amount"] === 10) {
-                            transType = "EFT"
-                        }
-
-                        console.log(amountGot)
-                        //call function to update the database
-
-                        app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
-                            
-                            if (parseInt(tranformed["affectedRows"]) === 1) {
-                                console.log("Done")
-                            } else {
-                                console.log("failed")
+                            if (res.data["amount"] === 0.95) {
+                                transType = "sms"
                             }
-                        
-                        }).catch(errr => {
-                            console.log(errr)
-                        })
-                    }
-                }).catch(errrr => {
-                    
-                    console.log(errrr.message)
 
+                            if (res.data["amount"] === 18) {
+                                transType = "Admin Fees"
+                            }
+
+                            if (res.data["amount"] === 10) {
+                                transType = "EFT"
+                            }
+
+                            console.log(amountGot)
+                            //call function to update the database
+
+                            app.updateZeroCharge(dt["tran_id"], transType, amountGot).then(tranformed => {
+
+                                if (parseInt(tranformed["affectedRows"]) === 1) {
+                                    console.log("Done")
+                                } else {
+                                    console.log("failed")
+                                }
+
+                            }).catch(errr => {
+                                console.log(errr)
+                            })
+                        }
+                    }).catch(errrr => {
+
+                        console.log(errrr.message)
+
+                    })
                 })
-            })
+            }
         })
 
     } catch (err) {

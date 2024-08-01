@@ -151,7 +151,7 @@ router.post('/eft', (req, res) => {
     try {
 
       chargies.geteft().then(data => {
-        
+
         if (data.length === 0) {
           console.log("ALL EFT FEES HAVE BEEN RUN")
           return;
@@ -159,7 +159,7 @@ router.post('/eft', (req, res) => {
 
 
         data.forEach(el => {
-          
+
           var amount = 60
 
           console.log(amount)
@@ -168,9 +168,9 @@ router.post('/eft', (req, res) => {
           chargies.createClientCharge(el["accountNo"], amount.toFixed(2), 10, calculator.myDate(el["date"])).then(dt => {
 
             let data = dt.data
-            
+
             var resourceID = data["resourceId"]
-            
+
             // will be used to pay the charge
             chargies.payCharge(el["accountNo"], resourceID, amount.toFixed(2), calculator.myDate(el["date"])).then((newData) => {
 
@@ -277,7 +277,7 @@ router.post("/mulaadminfees", (req, res) => {
 
 //lets run withholding tax
 router.post("/mulawithholdingtax", (req, res) => {
-  
+
   setInterval(() => {
 
     //checking if the are records in the database
@@ -960,23 +960,35 @@ router.post('/runloanadminfees', async (req, res) => {
           // MONTHLY ADMIN FEES WILL HAVE ITS OWN UNIQUE VALUE ID
           chargies.saveLoanClientCharge(dt["accountNo"], 3, 50, calculator.myDate(dt["date"])).then(data => {
 
-            //pay the loan charge
-            if (data.data !== undefined) {
+            try {
+              //pay the loan charge
+              if (data.data !== undefined) {
 
-              // update when charge has been updated
-              chargies.updateSavedAdminFee(dt["accountNo"]).then(found => {
+                // update when charge has been updated
+                chargies.updateSavedAdminFee(dt["accountNo"]).then(found => {
 
-                console.log(found)
+                  //console.log(found)
 
-              })
+                  if (found.affectedRows === 1) {
+                    console.log(dt["accountNo"])
+                    console.log("Saved")
+                  } else {
+                    console.log("Failed To Save")
+                  }
+
+                })
+              }
+            } catch (error) {
+              console.log(error.message)
             }
+
           })
         })
       })
     }, 10000);
 
   } catch (error) {
-    console.log(error)
+    console.log(error.message)
   }
 })
 

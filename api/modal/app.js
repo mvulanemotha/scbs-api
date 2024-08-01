@@ -831,7 +831,7 @@ let sendResetEmail = (email, newPassword) => {
 
             from: {
                 name: 'STATUS CAPITAL',
-                address: 'it@scbs.co.sz' //process.env.frommail
+                address: 'statuscapitalit@gmail.com' //process.env.frommail
             },
             to: email,
             subject: 'Password Reset',
@@ -906,7 +906,7 @@ let zeroCharge = async () => {
         })
 
     } catch (error) {
-        console.log(error)
+        console.log("DATABASE CLOSED")
     }
 
 }
