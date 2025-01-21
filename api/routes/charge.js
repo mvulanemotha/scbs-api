@@ -142,6 +142,15 @@ router.post('/sms', (req, res) => {
 })
 
 
+// charge waive
+
+router.post('/waivecharge', (req, res) => {
+
+
+
+
+})
+
 //run eft
 router.post('/eft', (req, res) => {
 
@@ -958,7 +967,7 @@ router.post('/runloanadminfees', async (req, res) => {
         mydata.forEach(dt => {
 
           // MONTHLY ADMIN FEES WILL HAVE ITS OWN UNIQUE VALUE ID
-          chargies.saveLoanClientCharge(dt["accountNo"], 3, 50, calculator.myDate(dt["date"])).then(data => {
+          chargies.saveLoanClientCharge(dt["accountNo"], 3, 75.00, calculator.myDate(dt["date"])).then(data => {
 
             try {
               //pay the loan charge

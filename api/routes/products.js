@@ -58,7 +58,7 @@ router.get('/chargepenalties', async (req, res) => {
 // get client loan details
 router.get("/clientloan", (req, res) => {
 
-    
+
     products.loanClientDetails(req.query.loanId).then(data => {
 
         //res.json(data)
@@ -116,16 +116,16 @@ router.post('/runloanArears', (req, res) => {
     //84430.77
 
     var todayDate = new Date().toISOString().split('T')[0]
-    
+
     try {
-        
+
         setInterval(() => {
             //function to get one loan arear detail
             products.getLoanArearsDetails().then(dt => {
-                
-                
+
+
                 dt.forEach(el => {
-                    
+
                     /*
                     let r = (((parseInt(el["interest"]) / 100)) / 12)   //r interest in monthly
                     let n = parseInt(el["loanterm"])  // number of repayments
@@ -133,46 +133,46 @@ router.post('/runloanArears', (req, res) => {
                     let repayment = (p) / ((Math.pow((1 + r), n) - (1)) / ((r * (Math.pow((1 + r), n)))))
                     */
                     //have a variable which will multiply by 3 because 90 days leads to 3 repayments
-                    
+
                     let transDate
-                    
+
                     if ((new Date(todayDate)) > (new Date(el["maturityDate"]))) {
                         transDate = el["maturityDate"]
                     } else {
                         transDate = todayDate
                     }
-                    
+
                     let arrears = parseFloat(el["totalOverDue"])
-                    
+
                     let amount = (1 / 12) * (14 / 100) * (arrears)
-                    
+
                     console.log(el["accountNo"])
                     console.log(amount)
-                    
+
                     //run loan penalty
-                    
+
                     products.runloanPenalty(el["accountNo"], amount.toFixed(2), calculator.myDate(transDate)).then(dt => {
-                        
-                        
+
+
                         if (dt["status"] === 200) {
-                            
+
                             console.log("Good")
-                            
+
                             //call another function to update database
                             products.updateLoanArrears(el["accountNo"]).then(results => {
                                 //console.log(results)
                             })
                         }
-                    
+
                     }).catch(err => {
                         console.log(err)
                     })
-                
+
                 })
             })
         }, 6000);
-    
-    
+
+
     } catch (err) {
         console.log(err)
     }
@@ -181,9 +181,9 @@ router.post('/runloanArears', (req, res) => {
 //router to transfer all amount from a mula savings accounts
 
 router.post('/emptyMulaAccounts', (req, res) => {
-    
+
     try {
-        
+
         var todayDate = new Date().toISOString().split('T')[0]
 
         //call function to make a withdrawal

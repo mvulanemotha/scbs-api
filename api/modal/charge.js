@@ -1331,6 +1331,23 @@ let checkStatement = async (accountNo) => {
     }
 }
 
+//waive a charge
+
+let waiveCharge = (data) => {
+
+    try {
+
+        let data = data;
+
+        // select charge 
+
+
+    } catch (error) {
+        console.log(error.message)
+    }
+
+}
+
 
 module.exports = {
     updateSavedAdminFee,
