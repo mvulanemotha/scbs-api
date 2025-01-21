@@ -5,7 +5,7 @@ const database = mysql.createPool({
     password: 'Mvulane2@@',
     user: 'SCBS',
     database: 'scbs_customers',
-    host: 'localhost',
+    host: '158.220.117.250',
     port: '3306',
     timezone: 'SAST',
     dateStrings: true,

@@ -894,19 +894,19 @@ let zeroCharge = async () => {
             let query = "select * from transactions where trans_type = ? and chargies_applied = 0 limit 1"
 
             db.query(query, [charge], (err, result) => {
-
+                console.log(err)
                 if (err) {
+                    //console.log(err)
                     return reject(err)
                 }
 
                 return resolve(result)
 
             })
-
         })
 
     } catch (error) {
-        console.log("DATABASE CLOSED")
+        console.log(error.message)
     }
 
 }
