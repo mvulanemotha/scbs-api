@@ -894,7 +894,7 @@ let zeroCharge = async () => {
             let query = "select * from transactions where trans_type = ? and chargies_applied = 0 limit 1"
 
             db.query(query, [charge], (err, result) => {
-                console.log(err)
+                //console.log(err)
                 if (err) {
                     //console.log(err)
                     return reject(err)
@@ -906,7 +906,7 @@ let zeroCharge = async () => {
         })
 
     } catch (error) {
-        console.log(error.message)
+        //console.log(error.message)
     }
 
 }
